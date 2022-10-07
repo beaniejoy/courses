@@ -6,6 +6,7 @@ plugins {
     kotlin("jvm") version "1.6.21"
     kotlin("plugin.spring") version "1.6.21"
     kotlin("plugin.jpa") version "1.6.21"
+    kotlin("kapt") version "1.6.21"
 }
 
 group = "io.beaniejoy"
@@ -37,8 +38,9 @@ dependencies {
 
     runtimeOnly("org.postgresql:postgresql")
 
-    // 찾아볼 것
+    // using customizing configuration metadata file with @ConfigurationProperties
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+    kapt("org.springframework.boot:spring-boot-configuration-processor")
 
     // modelmapper <- 필요 없을 듯
 
