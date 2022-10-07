@@ -227,3 +227,33 @@ Authentication authentication = SecurityContextHolder.getContext().getAuthentica
   - 심의 결정자(접근 권한 결정)
   - `AccessDecisionVoter`에게 심의 위임(승인/거부 내용 전달)
   - 접근 승인 유무 체크 후 허용할지 `AccessDeniedException` 던질지 결정
+
+<br>
+
+## 📌 인가 결정 심의자 - AccessDecisionManager, AccessDecisionVoter
+- **인증 정보, 요청 정보, 권한 정보** 이용해서 사용자 자원 접근을 허용/거부 최종 결정 주체
+- 여러 Voter들을 구현해서 적용할 수 있다.
+
+### AccessDecisionManager
+- 세 가지 구현체가 존재하고 구현체마다 접근 결정 방식이 다르다.
+1. `AffirmativeBased` 
+   - 여러 Voter 중 하나라도 접근 허가 결정내리면 최종 접근 허가
+   - 거부, 거부, 승인 -> 최종 승인
+2. `ConsensusBased`
+   - 다수결에 의한 결정
+   - 동률일 경우 `allowEqualGrantedDeniedDecisions`로 접근 허용/거부 설정 가능
+   - (`false`인 경우 동률이어도 최종 접근 거부)
+3. `UnanimousBased`
+   - 모든 Voter가 만장일치로 접근을 승인해야 최종 접근 승인
+   - 승인, 승인, 승인 -> 최종 승인 (하나라도 거부면 최종 거부)
+
+### AccessDecisionVoter
+- Voter의 판단 근거
+  - 인증 정보: `Authentication`
+  - 요청 정보: `FilterInvocation`
+  - 권한 정보: `ConfigAttributes`
+- 결정 방식
+  - `ACCESS_GRANTED` = 1;
+  - `ACCESS_ABSTAIN` = 0;
+  - `ACCESS_DENIED` = -1;
+
