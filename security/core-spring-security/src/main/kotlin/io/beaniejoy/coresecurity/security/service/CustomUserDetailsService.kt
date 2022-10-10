@@ -9,7 +9,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Component
 
 // bean 객체로 지정만 하면 Spring Security에서 알아서 UserDetailsService로 사용
-@Component("userDetailsService")
+@Component
 class CustomUserDetailsService(
     private val userRepository: UserRepository
 ): UserDetailsService {
@@ -19,8 +19,7 @@ class CustomUserDetailsService(
         val account = (userRepository.findByUsername(username)
             ?: throw UsernameNotFoundException("UsernameNotFoundException"))
 
-
-        logger.info { "CustomUserDetailsService account ${account.username}, ${account.role}" }
+        logger.info { "[CustomUserDetailsService] account ${account.username}, ${account.role}" }
 
         val roles = listOf(SimpleGrantedAuthority(account.role))
 

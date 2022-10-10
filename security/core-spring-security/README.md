@@ -94,3 +94,11 @@ protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 ```
 - 기본 Security에서는 Overriding 통해서 userDetailsService를 등록
 - **최근 버전에서는 UserDetailsService customizing한 클래스를 빈 등록하면 자동으로 그것을 사용**
+
+<br>
+
+## CustomAuthenticationProvider
+- 여기도 5.7 바뀐 설정에서는 `@Component` 등록만으로 스프링 시큐리티에 `AutheticationProvider` 등록
+- 이 때 인증 과정을 거치게 되면 `ProviderManager`를 통해 자식부터 등록된 `AutheticationProvider` 탐색
+- 없으면 부모 `ProviderManager`로 올라가게 되는데 거기에 등록된 `CustomAuthenticationProvider`도 `supports` 체크 과정 거치게된다.
+- `supports` 체크결과 해당하는 Provider면 이것을 통해 authenticate 과정을 위임하게 된다.
