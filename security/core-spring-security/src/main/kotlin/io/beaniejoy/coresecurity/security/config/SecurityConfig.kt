@@ -32,6 +32,10 @@ class SecurityConfig {
 
             .and()
             .formLogin()
+            .loginPage("/login")
+            .loginProcessingUrl("/login_proc")
+            .defaultSuccessUrl("/")
+            .permitAll()
 
             .and().build()
     }
