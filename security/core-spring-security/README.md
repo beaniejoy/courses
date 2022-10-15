@@ -102,3 +102,20 @@ protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 - 이 때 인증 과정을 거치게 되면 `ProviderManager`를 통해 자식부터 등록된 `AutheticationProvider` 탐색
 - 없으면 부모 `ProviderManager`로 올라가게 되는데 거기에 등록된 `CustomAuthenticationProvider`도 `supports` 체크 과정 거치게된다.
 - `supports` 체크결과 해당하는 Provider면 이것을 통해 authenticate 과정을 위임하게 된다.
+
+<br>
+
+## 인증 부가 기능
+- `WebAuthenticationDetails`
+- `AuthenticationDetailsSource`
+
+### WebAuthenticationDetails
+- 인증 처리시 사용자가 입력한 username, password 이외의 parameter를 받아서 사용 가능
+- `request.getParameter("param1")`
+```kotlin
+protected void setDetails(HttpServletRequest request, UsernamePasswordAuthenticationToken authRequest) {
+    authRequest.setDetails(this.authenticationDetailsSource.buildDetails(request));
+}
+```
+- `UsernamePasswordAuthenticationFilter` 여기서 `UsernamePasswordAuthenticationToken`을 얻고
+- token에 setDetails 작업 진행 -> 여기서 `AuthenticationDetailsSource` 사용

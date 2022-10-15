@@ -16,8 +16,8 @@ class CustomUserDetailsService(
     companion object: KLogging()
 
     override fun loadUserByUsername(username: String): UserDetails {
-        val account = (userRepository.findByUsername(username)
-            ?: throw UsernameNotFoundException("UsernameNotFoundException"))
+        val account = userRepository.findByUsername(username)
+            ?: throw UsernameNotFoundException("UsernameNotFoundException")
 
         logger.info { "[CustomUserDetailsService] account ${account.username}, ${account.role}" }
 
