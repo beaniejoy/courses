@@ -1,5 +1,7 @@
 package io.beaniejoy.coresecurity.security.config
 
+import io.beaniejoy.coresecurity.security.handler.CustomAuthenticationFailureHandler
+import io.beaniejoy.coresecurity.security.handler.CustomAuthenticationSuccessHandler
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest
 import org.springframework.context.annotation.Bean
@@ -19,11 +21,17 @@ class SecurityConfig {
     @Autowired
     lateinit var authenticationDetailsSource: AuthenticationDetailsSource<HttpServletRequest, *>
 
+    @Autowired
+    lateinit var customAuthenticationSuccessHandler: CustomAuthenticationSuccessHandler
+
+    @Autowired
+    lateinit var customAuthenticationFailureHandler: CustomAuthenticationFailureHandler
+
     @Bean
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
         return http
             .authorizeRequests()
-            .antMatchers("/", "/users").permitAll()
+            .antMatchers("/", "/users", "/error", "user/login/**", "/login*").permitAll()
             .antMatchers("/mypage").hasRole("USER")
             .antMatchers("/messages").hasRole("MANAGER")
             .antMatchers("/config").hasRole("ADMIN")
@@ -35,6 +43,8 @@ class SecurityConfig {
             .loginProcessingUrl("/login_proc")
             .authenticationDetailsSource(authenticationDetailsSource)
             .defaultSuccessUrl("/")
+            .successHandler(customAuthenticationSuccessHandler)
+            .failureHandler(customAuthenticationFailureHandler)
             .permitAll()
 
             .and().build()
@@ -45,7 +55,6 @@ class SecurityConfig {
         return WebSecurityCustomizer { web ->
             web.ignoring()
                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations())
-                .antMatchers("/error")
         }
     }
 
