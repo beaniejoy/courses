@@ -1,9 +1,11 @@
 package io.beaniejoy.coresecurity.controller.login
 
+import io.beaniejoy.coresecurity.domain.Account
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
+import org.springframework.ui.set
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestParam
 import javax.servlet.http.HttpServletRequest
@@ -30,5 +32,18 @@ class LoginController {
         }
 
         return "redirect:/login"
+    }
+
+    @GetMapping("/denied")
+    fun accessDenied(
+        @RequestParam(name = "exception", required = false) exception: String?,
+        model: Model,
+    ): String {
+        val authentication = SecurityContextHolder.getContext().authentication
+        val account = authentication.principal as Account
+        model.addAttribute("username", account.username)
+        model.addAttribute("exception", exception)
+
+        return "user/login/denied"
     }
 }

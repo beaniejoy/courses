@@ -1,5 +1,6 @@
 package io.beaniejoy.coresecurity.security.config
 
+import io.beaniejoy.coresecurity.security.handler.CustomAccessDeniedHandler
 import io.beaniejoy.coresecurity.security.handler.CustomAuthenticationFailureHandler
 import io.beaniejoy.coresecurity.security.handler.CustomAuthenticationSuccessHandler
 import org.springframework.beans.factory.annotation.Autowired
@@ -47,6 +48,10 @@ class SecurityConfig {
             .failureHandler(customAuthenticationFailureHandler)
             .permitAll()
 
+            .and()
+            .exceptionHandling()
+            .accessDeniedHandler(accessDeniedHandler())
+
             .and().build()
     }
 
@@ -61,5 +66,10 @@ class SecurityConfig {
     @Bean
     fun passwordEncoder(): PasswordEncoder {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder()
+    }
+
+    @Bean
+    fun accessDeniedHandler(): CustomAccessDeniedHandler {
+        return CustomAccessDeniedHandler("/denied")
     }
 }

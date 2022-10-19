@@ -18,7 +18,7 @@ class Account protected constructor(
     val id: Long = 0L
 
     @Column(name = "username")
-    var username: String? = username
+    var username: String = username
         protected set
 
     @Column(name = "password")
