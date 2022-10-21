@@ -29,9 +29,9 @@ class UserController(
         val account = Account.createAccount(
             username = accountDto.username,
             password = passwordEncoder.encode(accountDto.password),
-            email = accountDto.email,
-            age = accountDto.age,
-            role = accountDto.role
+            email = accountDto.email!!,
+            age = accountDto.age!!,
+            role = accountDto.role!!
         )
 
         userService.createUser(account)

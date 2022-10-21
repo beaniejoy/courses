@@ -24,6 +24,8 @@ class FormAuthenticationProvider(
     // AuthenticationManager 에서 전달 받은 Authentication 객체
     // loadUserByUsername, 실제 인증 처리까지 여기서 담당
     override fun authenticate(authentication: Authentication): Authentication {
+        logger.info { "[FormAuthenticationProvider] authenticate Start!!" }
+
         val username = authentication.name
         val password = authentication.credentials as String
 
