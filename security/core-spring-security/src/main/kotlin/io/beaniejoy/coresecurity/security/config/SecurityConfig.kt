@@ -1,6 +1,5 @@
 package io.beaniejoy.coresecurity.security.config
 
-import io.beaniejoy.coresecurity.security.filter.AjaxLoginProcessingFilter
 import io.beaniejoy.coresecurity.security.handler.CustomAccessDeniedHandler
 import io.beaniejoy.coresecurity.security.handler.CustomAuthenticationFailureHandler
 import io.beaniejoy.coresecurity.security.handler.CustomAuthenticationSuccessHandler
@@ -8,21 +7,18 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.core.annotation.Order
 import org.springframework.security.authentication.AuthenticationDetailsSource
-import org.springframework.security.authentication.AuthenticationManager
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer
 import org.springframework.security.crypto.factory.PasswordEncoderFactories
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import javax.servlet.http.HttpServletRequest
 
 
 @Configuration
-@EnableWebSecurity
+@Order(1)
 class SecurityConfig {
     @Autowired
     lateinit var authenticationDetailsSource: AuthenticationDetailsSource<HttpServletRequest, *>
@@ -32,9 +28,6 @@ class SecurityConfig {
 
     @Autowired
     lateinit var customAuthenticationFailureHandler: CustomAuthenticationFailureHandler
-
-    @Autowired
-    lateinit var authenticationConfiguration: AuthenticationConfiguration
 
     @Bean
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
@@ -59,12 +52,7 @@ class SecurityConfig {
             .and()
             .exceptionHandling()
             .accessDeniedHandler(accessDeniedHandler())
-
-            .and()
-            .addFilterBefore(ajaxLoginProcessingFilter(), UsernamePasswordAuthenticationFilter::class.java)
-
-            .csrf().disable()
-            .build()
+            .and().build()
     }
 
     @Bean
@@ -83,17 +71,5 @@ class SecurityConfig {
     @Bean
     fun accessDeniedHandler(): CustomAccessDeniedHandler {
         return CustomAccessDeniedHandler("/denied")
-    }
-
-    @Bean
-    fun authenticationManager(): AuthenticationManager {
-        return authenticationConfiguration.authenticationManager
-    }
-
-    @Bean
-    fun ajaxLoginProcessingFilter(): AjaxLoginProcessingFilter {
-        return AjaxLoginProcessingFilter().apply {
-            this.setAuthenticationManager(authenticationManager())
-        }
     }
 }

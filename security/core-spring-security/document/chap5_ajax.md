@@ -64,3 +64,51 @@ public void afterPropertiesSet() {
 - `@Component`로 빈 등록하면 `AbstractAuthenticationFilter`의 이게 먼저 실행
 - authenticationManager 저장하지 못하고 있음
 - **스프링 시큐리티에서 필터를 생성하고 등록할 때 대부분 빈으로 등록하지 않음**
+
+<br>
+
+## AjaxAuthenticationProvider
+```
+org.apache.http.client.ClientProtocolException
+```
+- 위 에러는 POST 요청시 url 내용이 없어서 발생할 수 있음
+
+### 주의점 1. 다른 config 파일 내 같은 bean 메소드
+```kt
+// AjaxSecurityConfig.kt
+@Bean
+fun ajaxFilterChain(http: HttpSecurity): SecurityFilterChain {
+    return http
+        .antMatcher("/api/**")
+        .authorizeRequests()
+        .anyRequest().authenticated()
+
+        .and()
+        .addFilterBefore(ajaxLoginProcessingFilter(), UsernamePasswordAuthenticationFilter::class.java)
+
+        .csrf().disable()
+        .build()
+}
+```
+- 다른 config 파일에서 기존 설정 파일에서의 `filterChain` fun 이름과 중복되면 안된다.
+- 만약 같은 이름의 bean 메소드를 지정하면 Order 순서에 따라 뒤에 설정되는 filterChain 정보가 등록이된다.
+  - `addFilterBefore` 등록된 내용은 없어지게 됨
+
+### :pushpin: 주의점 2.
+```kt
+// 초기화 때 생성된 AuthenticationManager
+val authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class)
+authenticationManagerBuilder.authenticationProvider(ajaxAuthenticationProvider());
+
+// 위와 다른 AuthenticationManager 객체
+authenticationConfiguration.authenticationManager
+```
+```kt
+@Bean
+fun authenticationManager(): AuthenticationManager {
+  val authenticationManager = authenticationConfiguration.authenticationManager as ProviderManager
+  authenticationManager.providers.add(ajaxAuthenticationProvider)
+  return authenticationManager
+}
+```
+- **이부분이 아직 와닿지 않는다.**

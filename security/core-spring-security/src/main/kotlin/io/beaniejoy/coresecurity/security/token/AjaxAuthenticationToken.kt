@@ -5,7 +5,7 @@ import org.springframework.security.core.GrantedAuthority
 
 class AjaxAuthenticationToken : AbstractAuthenticationToken {
     private var principal: Any
-    private var credentials: Any
+    private var credentials: Any?
 
     constructor(principal: Any, credentials: Any) : super(null) {
         this.principal = principal
@@ -13,12 +13,13 @@ class AjaxAuthenticationToken : AbstractAuthenticationToken {
         isAuthenticated = false
     }
 
-    constructor(principal: Any, credentials: Any, authorities: Collection<GrantedAuthority>) : super(authorities) {
+    constructor(principal: Any, credentials: Any?, authorities: Collection<GrantedAuthority>) : super(authorities) {
         this.principal = principal
         this.credentials = credentials
+        isAuthenticated = true
     }
 
-    override fun getCredentials(): Any {
+    override fun getCredentials(): Any? {
         return this.credentials
     }
 
