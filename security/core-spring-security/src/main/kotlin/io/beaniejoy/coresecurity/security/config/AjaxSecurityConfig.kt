@@ -1,6 +1,8 @@
 package io.beaniejoy.coresecurity.security.config
 
 import io.beaniejoy.coresecurity.security.filter.AjaxLoginProcessingFilter
+import io.beaniejoy.coresecurity.security.handler.AjaxAuthenticationFailureHandler
+import io.beaniejoy.coresecurity.security.handler.AjaxAuthenticationSuccessHandler
 import io.beaniejoy.coresecurity.security.provider.AjaxAuthenticationProvider
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
@@ -23,6 +25,12 @@ class AjaxSecurityConfig {
     @Autowired
     lateinit var ajaxAuthenticationProvider: AjaxAuthenticationProvider
 
+    @Autowired
+    lateinit var ajaxAuthenticationSuccessHandler: AjaxAuthenticationSuccessHandler
+
+    @Autowired
+    lateinit var ajaxAuthenticationFailureHandler: AjaxAuthenticationFailureHandler
+
     @Bean
     fun ajaxFilterChain(http: HttpSecurity): SecurityFilterChain {
         return http
@@ -44,10 +52,13 @@ class AjaxSecurityConfig {
         return authenticationManager
     }
 
+    // custom filter 적용시에는 거기에다가 AuthenticationManager, Success/FailureHandler를 따로 등록해줘야 한다.
     @Bean
     fun ajaxLoginProcessingFilter(): AjaxLoginProcessingFilter {
         return AjaxLoginProcessingFilter().apply {
             this.setAuthenticationManager(authenticationManager())
+            this.setAuthenticationSuccessHandler(ajaxAuthenticationSuccessHandler)
+            this.setAuthenticationFailureHandler(ajaxAuthenticationFailureHandler)
         }
     }
 }

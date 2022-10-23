@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
 @Component
-class CustomAuthenticationSuccessHandler : SimpleUrlAuthenticationSuccessHandler() {
+class FormAuthenticationSuccessHandler : SimpleUrlAuthenticationSuccessHandler() {
     private val requestCache: RequestCache = HttpSessionRequestCache()
 
     companion object : KLogging()

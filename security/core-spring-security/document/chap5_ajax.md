@@ -1,5 +1,16 @@
 # Chap 5) Ajax 인증 구현
 
+## 먼저 알아야할 점
+
+- 디버깅으로 인증 관련 필터를 확인하고 싶으면 `AbstractAuthenticationProcessingFilter` 참고
+- `UsernamePasswordAuthenticationFilter`은 `AbstractAuthenticationProcessingFilter`을 상속받은 클래스
+- Custom한 인증 filter를 등록하기 위해서 `AbstractAuthenticationProcessingFilter` 이것을 상속받아서 등록하면 됨
+- 근데 중요한 것은 custom filter에 따로 설정해야할 것들이 있다. 
+  - `AuthenticationManager` 따로 등록해야 한다. (아래 AjaxAuthenticationProvider 주의점 내용 참고)
+  - custom success/failure handler 등록할 때에도 해당 custom filter에 따로 등록해야 한다.
+
+<br>
+
 ## 인증 필터 - AjaxAuthenticationFilter
 - AbstractAuthenticationFilter를 상속받아서 config에 등록해야함
 - 여기서 문제가 Spring Security `WebSecurityConfigurerAdapter` deprecated 문제
@@ -94,7 +105,7 @@ fun ajaxFilterChain(http: HttpSecurity): SecurityFilterChain {
 - 만약 같은 이름의 bean 메소드를 지정하면 Order 순서에 따라 뒤에 설정되는 filterChain 정보가 등록이된다.
   - `addFilterBefore` 등록된 내용은 없어지게 됨
 
-### :pushpin: 주의점 2.
+### 주의점 2. 다른 AuthenticationManager 객체 참조
 ```kt
 // 초기화 때 생성된 AuthenticationManager
 val authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class)

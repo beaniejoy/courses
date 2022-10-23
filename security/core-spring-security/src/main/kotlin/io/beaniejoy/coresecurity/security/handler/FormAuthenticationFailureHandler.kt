@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletResponse
 
 // it can be also applied with implementing AuthenticationFailureHandler interface
 @Component
-class CustomAuthenticationFailureHandler: SimpleUrlAuthenticationFailureHandler() {
+class FormAuthenticationFailureHandler: SimpleUrlAuthenticationFailureHandler() {
     override fun onAuthenticationFailure(
         request: HttpServletRequest,
         response: HttpServletResponse,

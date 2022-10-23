@@ -1,8 +1,8 @@
 package io.beaniejoy.coresecurity.security.config
 
-import io.beaniejoy.coresecurity.security.handler.CustomAccessDeniedHandler
-import io.beaniejoy.coresecurity.security.handler.CustomAuthenticationFailureHandler
-import io.beaniejoy.coresecurity.security.handler.CustomAuthenticationSuccessHandler
+import io.beaniejoy.coresecurity.security.handler.FormAccessDeniedHandler
+import io.beaniejoy.coresecurity.security.handler.FormAuthenticationFailureHandler
+import io.beaniejoy.coresecurity.security.handler.FormAuthenticationSuccessHandler
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest
 import org.springframework.context.annotation.Bean
@@ -24,10 +24,10 @@ class SecurityConfig {
     lateinit var authenticationDetailsSource: AuthenticationDetailsSource<HttpServletRequest, *>
 
     @Autowired
-    lateinit var customAuthenticationSuccessHandler: CustomAuthenticationSuccessHandler
+    lateinit var formAuthenticationSuccessHandler: FormAuthenticationSuccessHandler
 
     @Autowired
-    lateinit var customAuthenticationFailureHandler: CustomAuthenticationFailureHandler
+    lateinit var formAuthenticationFailureHandler: FormAuthenticationFailureHandler
 
     @Bean
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
@@ -45,8 +45,8 @@ class SecurityConfig {
             .loginProcessingUrl("/login_proc")
             .authenticationDetailsSource(authenticationDetailsSource)
             .defaultSuccessUrl("/")
-            .successHandler(customAuthenticationSuccessHandler)
-            .failureHandler(customAuthenticationFailureHandler)
+            .successHandler(formAuthenticationSuccessHandler)
+            .failureHandler(formAuthenticationFailureHandler)
             .permitAll()
 
             .and()
@@ -69,7 +69,7 @@ class SecurityConfig {
     }
 
     @Bean
-    fun accessDeniedHandler(): CustomAccessDeniedHandler {
-        return CustomAccessDeniedHandler("/denied")
+    fun accessDeniedHandler(): FormAccessDeniedHandler {
+        return FormAccessDeniedHandler("/denied")
     }
 }

@@ -5,7 +5,7 @@ import org.springframework.security.web.access.AccessDeniedHandler
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
-class CustomAccessDeniedHandler(
+class FormAccessDeniedHandler(
     private val errorPage: String
 ): AccessDeniedHandler {
     override fun handle(
