@@ -8,6 +8,10 @@
 - 근데 중요한 것은 custom filter에 따로 설정해야할 것들이 있다. 
   - `AuthenticationManager` 따로 등록해야 한다. (아래 AjaxAuthenticationProvider 주의점 내용 참고)
   - custom success/failure handler 등록할 때에도 해당 custom filter에 따로 등록해야 한다.
+- `ajax.http`
+  - `POST /api/login`하게 되면 로그인에 대한 인증 처리 진행 후 성공하면 SC 객체를 세션에 저장
+  - 저장된 세션의 ID 값을 클라이언트에 cookie 저장하도록 응답(set-cookies)
+  - `http-client.cookies` 파일에는 쿠키에 저장된 내용 저장(해당 세션 ID 값, `JSESSIONID`)
 
 <br>
 
@@ -115,6 +119,7 @@ authenticationManagerBuilder.authenticationProvider(ajaxAuthenticationProvider()
 authenticationConfiguration.authenticationManager
 ```
 ```kt
+// AjaxSecurityConfig.kt
 @Bean
 fun authenticationManager(): AuthenticationManager {
   val authenticationManager = authenticationConfiguration.authenticationManager as ProviderManager
@@ -123,3 +128,25 @@ fun authenticationManager(): AuthenticationManager {
 }
 ```
 - **이부분이 아직 와닿지 않는다.**
+
+<br>
+
+## 인증 및 인가 예외 처리
+
+- `FilterSecurityInterceptor`
+  - 여기서 인가 처리 담당(어떤 자원에 접근했을 때 접근 가능한 사용자인지 검증)
+  - 인증을 받지 않은 사용자(익명 사용자)가 접근한 경우 -> 인증을 받도록 예외처리
+  - 인증 받은 사용자가 허가 받지 않은 자원에 접근한 경우
+  - 예외 발생시 `ExceptionTranslationFilter`로 인가 예외를 보낸다.
+- `ExceptionTranslationFilter`
+  - 두 가지 경우에 대한 인가 예외처리를 담당
+    - 익명 사용자가 접근한 경우 -> 다시 인증 받도록 로그인 페이지로 유도하는 등의 처리
+    - 인증 받은 사용자가 접근한 경우 -> 접근 불가능하다는 메시지 응답
+
+```kotlin
+// AjaxSecurityConfig.kt
+http
+  .exceptionHandling()
+  .authenticationEntryPoint(ajaxLoginAuthenticationEntryPoint)  // 인증받지 않은 사용자에 대한 인가 예외 처리
+  .accessDeniedHandler(ajaxAccessDeniedHandler)                 // 인증 받은 사용자의 허용받지 않은 자원 접근에 대한 예외 처리
+```
