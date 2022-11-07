@@ -1,6 +1,5 @@
 package io.beaniejoy.coresecurity.security.handler
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.beaniejoy.coresecurity.domain.Account
 import org.springframework.http.HttpStatus

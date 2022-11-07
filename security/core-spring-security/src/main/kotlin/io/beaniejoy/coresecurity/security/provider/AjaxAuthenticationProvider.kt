@@ -21,7 +21,7 @@ class AjaxAuthenticationProvider(
         logger.info { "[AjaxAuthenticationProvider] authenticate Start!!" }
 
         val username = authentication.name
-        val password = authentication.credentials as String?    // AjaxAuthenticationToken getCredentials() nullable 하기에
+        val password = authentication.credentials as String?
 
         val accountContext = userDetailsService.loadUserByUsername(username) as AccountContext
 
