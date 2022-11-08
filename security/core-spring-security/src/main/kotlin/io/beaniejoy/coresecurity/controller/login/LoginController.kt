@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletResponse
 
 @Controller
 class LoginController {
-    @GetMapping("/login")
+    @GetMapping(value = ["/login", "/api/login"])
     fun login(
         @RequestParam(name = "error", required = false) error: String?,
         @RequestParam(name = "exception", required = false) exception: String?,
@@ -34,7 +34,7 @@ class LoginController {
         return "redirect:/login"
     }
 
-    @GetMapping("/denied")
+    @GetMapping(value =["/denied", "/api/denied"])
     fun accessDenied(
         @RequestParam(name = "exception", required = false) exception: String?,
         model: Model,

@@ -45,6 +45,7 @@ class AjaxSecurityConfig {
             .antMatcher("/api/**")
             .authorizeRequests()
             .antMatchers("/api/messages").hasRole("MANAGER")
+            .antMatchers("/api/login").permitAll()
             .anyRequest().authenticated()
 
             .and()
@@ -55,7 +56,7 @@ class AjaxSecurityConfig {
             .accessDeniedHandler(ajaxAccessDeniedHandler)                   // 인증 받은 사용자의 허용받지 않은 자원 접근에 대한 예외 처리
 
             .and()
-            .csrf().disable()
+//            .csrf().disable()
             .build()
     }
 

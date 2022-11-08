@@ -1,7 +1,9 @@
 package io.beaniejoy.coresecurity.controller.user
 
+import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.ResponseBody
 
 @Controller
@@ -13,8 +15,8 @@ class MessageController {
     }
 
     @ResponseBody
-    @GetMapping("/api/messages")
-    fun apiMessage(): String {
-        return "messages ok"
+    @PostMapping("/api/messages")
+    fun apiMessage(): ResponseEntity<String> {
+        return ResponseEntity.ok().body("ok");
     }
 }

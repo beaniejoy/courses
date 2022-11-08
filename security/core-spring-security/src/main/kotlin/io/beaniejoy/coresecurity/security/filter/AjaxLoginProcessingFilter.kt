@@ -17,6 +17,11 @@ class AjaxLoginProcessingFilter :
     private val log = KotlinLogging.logger {}
     private val objectMapper = jacksonObjectMapper()
 
+    companion object {
+        const val XML_HTTP_REQUEST = "XMLHttpRequest"
+        const val X_REQUESTED_WITH = "X-Requested-With"
+    }
+
     override fun attemptAuthentication(request: HttpServletRequest, response: HttpServletResponse): Authentication? {
 
         log.info { "###### AjaxLoginProcessingFilter ######" }
@@ -36,7 +41,7 @@ class AjaxLoginProcessingFilter :
     }
 
     private fun isAjax(request: HttpServletRequest): Boolean {
-        if ("XMLHttpRequest" == request.getHeader("X-Requested-With")) {
+        if (XML_HTTP_REQUEST == request.getHeader(X_REQUESTED_WITH)) {
             return true
         }
 
