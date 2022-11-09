@@ -1,7 +1,7 @@
 package io.beaniejoy.coresecurity.controller.user
 
-import io.beaniejoy.coresecurity.domain.Account
-import io.beaniejoy.coresecurity.domain.AccountDto
+import io.beaniejoy.coresecurity.domain.entity.Account
+import io.beaniejoy.coresecurity.domain.dto.AccountDto
 import io.beaniejoy.coresecurity.service.UserService
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Controller

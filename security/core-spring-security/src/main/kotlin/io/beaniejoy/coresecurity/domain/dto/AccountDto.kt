@@ -1,4 +1,4 @@
-package io.beaniejoy.coresecurity.domain
+package io.beaniejoy.coresecurity.domain.dto
 
 data class AccountDto(
     var username: String,

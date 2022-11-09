@@ -1,6 +1,6 @@
 package io.beaniejoy.coresecurity.service.impl
 
-import io.beaniejoy.coresecurity.domain.Account
+import io.beaniejoy.coresecurity.domain.entity.Account
 import io.beaniejoy.coresecurity.repository.UserRepository
 import io.beaniejoy.coresecurity.service.UserService
 import org.springframework.stereotype.Service

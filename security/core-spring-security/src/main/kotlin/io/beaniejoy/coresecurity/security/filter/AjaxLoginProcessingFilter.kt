@@ -1,7 +1,7 @@
 package io.beaniejoy.coresecurity.security.filter
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import io.beaniejoy.coresecurity.domain.AccountDto
+import io.beaniejoy.coresecurity.domain.dto.AccountDto
 import io.beaniejoy.coresecurity.security.token.AjaxAuthenticationToken
 import mu.KotlinLogging
 import org.springframework.security.core.Authentication

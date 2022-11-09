@@ -1,7 +1,7 @@
 package io.beaniejoy.coresecurity.security.handler
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import io.beaniejoy.coresecurity.domain.Account
+import io.beaniejoy.coresecurity.domain.entity.Account
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.security.core.Authentication

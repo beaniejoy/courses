@@ -1,4 +1,4 @@
-package io.beaniejoy.coresecurity.domain
+package io.beaniejoy.coresecurity.domain.entity
 
 import javax.persistence.Column
 import javax.persistence.Entity

@@ -1,6 +1,6 @@
 package io.beaniejoy.coresecurity.security.service
 
-import io.beaniejoy.coresecurity.domain.Account
+import io.beaniejoy.coresecurity.domain.entity.Account
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.userdetails.User
 

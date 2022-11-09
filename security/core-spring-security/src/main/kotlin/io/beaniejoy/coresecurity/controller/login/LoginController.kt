@@ -1,11 +1,10 @@
 package io.beaniejoy.coresecurity.controller.login
 
-import io.beaniejoy.coresecurity.domain.Account
+import io.beaniejoy.coresecurity.domain.entity.Account
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
-import org.springframework.ui.set
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestParam
 import javax.servlet.http.HttpServletRequest
