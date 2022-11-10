@@ -14,6 +14,12 @@ import javax.servlet.http.HttpServletResponse
 class AjaxAuthenticationSuccessHandler: AuthenticationSuccessHandler {
     private val objectMapper = jacksonObjectMapper()
 
+    /**
+     * [### 주의 ###]
+     * 여기는 @Transactional 이미 끝난 상태
+     * Account를 직접 ObjectMapper serializing 처리를 한다면 그 안에 Role 엔티티 getter 모두 활용
+     * Role 엔티티에서 resourcesSet, accounts LAZY 프록시 기능 적용 불가 (에러 발생)
+     */
     override fun onAuthenticationSuccess(
         request: HttpServletRequest,
         response: HttpServletResponse,

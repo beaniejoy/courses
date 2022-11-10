@@ -3,7 +3,9 @@ package io.beaniejoy.coresecurity.security.filter
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.beaniejoy.coresecurity.domain.dto.AccountDto
 import io.beaniejoy.coresecurity.security.token.AjaxAuthenticationToken
+import io.beaniejoy.coresecurity.util.WebUtil
 import mu.KotlinLogging
+import org.springframework.http.HttpMethod
 import org.springframework.security.core.Authentication
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher
@@ -17,16 +19,11 @@ class AjaxLoginProcessingFilter :
     private val log = KotlinLogging.logger {}
     private val objectMapper = jacksonObjectMapper()
 
-    companion object {
-        const val XML_HTTP_REQUEST = "XMLHttpRequest"
-        const val X_REQUESTED_WITH = "X-Requested-With"
-    }
-
     override fun attemptAuthentication(request: HttpServletRequest, response: HttpServletResponse): Authentication? {
 
         log.info { "###### AjaxLoginProcessingFilter ######" }
 
-        if (isAjax(request).not()) {
+        if (HttpMethod.POST.name != request.method || WebUtil.isAjax(request).not()) {
             throw IllegalStateException("Authentication is not supported")
         }
 
@@ -38,13 +35,5 @@ class AjaxLoginProcessingFilter :
         val token = AjaxAuthenticationToken(accountDto.username, accountDto.password)
 
         return this.authenticationManager.authenticate(token)
-    }
-
-    private fun isAjax(request: HttpServletRequest): Boolean {
-        if (XML_HTTP_REQUEST == request.getHeader(X_REQUESTED_WITH)) {
-            return true
-        }
-
-        return false
     }
 }

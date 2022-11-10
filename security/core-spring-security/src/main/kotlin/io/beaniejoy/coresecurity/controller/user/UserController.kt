@@ -1,7 +1,7 @@
 package io.beaniejoy.coresecurity.controller.user
 
-import io.beaniejoy.coresecurity.domain.entity.Account
 import io.beaniejoy.coresecurity.domain.dto.AccountDto
+import io.beaniejoy.coresecurity.domain.entity.Account
 import io.beaniejoy.coresecurity.service.UserService
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Controller
@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping
 @Controller
 class UserController(
     private val userService: UserService,
-    private val passwordEncoder: PasswordEncoder
+    private val passwordEncoder: PasswordEncoder,
 ) {
 
     @GetMapping("/mypage")
@@ -30,8 +30,7 @@ class UserController(
             username = accountDto.username,
             password = passwordEncoder.encode(accountDto.password),
             email = accountDto.email!!,
-            age = accountDto.age!!,
-            role = accountDto.role!!
+            age = accountDto.age!!
         )
 
         userService.createUser(account)

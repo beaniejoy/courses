@@ -2,6 +2,7 @@ package io.beaniejoy.coresecurity.security.service
 
 import io.beaniejoy.coresecurity.repository.UserRepository
 import mu.KLogging
+import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
@@ -19,10 +20,12 @@ class CustomUserDetailsService(
         val account = userRepository.findByUsername(username)
             ?: throw UsernameNotFoundException("UsernameNotFoundException")
 
-        logger.info { "[CustomUserDetailsService] account ${account.username}, ${account.role}" }
+        val authorities: List<GrantedAuthority> = account.userRoles.map {
+            SimpleGrantedAuthority(it.roleName!!)
+        }.toList()
 
-        val roles = listOf(SimpleGrantedAuthority(account.role))
+        logger.info { "[CustomUserDetailsService] account ${account.username}, roles ${authorities}" }
 
-        return AccountContext(account, roles)
+        return AccountContext(account, authorities)
     }
 }

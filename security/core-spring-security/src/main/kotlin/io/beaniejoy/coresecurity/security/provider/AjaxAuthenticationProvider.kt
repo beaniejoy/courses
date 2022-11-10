@@ -9,14 +9,16 @@ import org.springframework.security.core.Authentication
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Component
+import javax.transaction.Transactional
 
 @Component
 class AjaxAuthenticationProvider(
     private val userDetailsService: UserDetailsService,
-    private val passwordEncoder: PasswordEncoder
+    private val passwordEncoder: PasswordEncoder,
 ): AuthenticationProvider {
     companion object: KLogging()
 
+    @Transactional
     override fun authenticate(authentication: Authentication): Authentication {
         logger.info { "[AjaxAuthenticationProvider] authenticate Start!!" }
 
