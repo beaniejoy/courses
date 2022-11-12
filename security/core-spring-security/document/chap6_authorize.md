@@ -13,3 +13,35 @@
   - 하지만 success handler에서는 이미 트랜잭션이 끝난 상황이므로 프록시 기능 사용 불가
   - `@JsonIgnore`를 통해서 json 직렬화 과정에서 제외시켜야 함
   - 만약에 이후에 `@JsonIgnore`로 다른 문제 발생시 successHandler에서 response dto로 따로 변환해서 직렬화해야할 듯
+
+<br>
+
+## :pushpin: 인가 처리 주요 아키텍처
+
+### 인가 프로세스 과정
+- `SecurityInterceptor`
+  - 인증정보: `Authentication`
+  - 요청정보: `FilterInvocation`
+  - 권한정보: `List<ConfigAttribute>`
+- 위 3개 정보를 받아서 `AccessDecisionManager`로 전달
+
+### 프로세스 구현체
+- `ExpressionBasedFilterInvocationSecurityMetadataSource`
+  - 초기 애플리케이션 실행시 설정된 권한정보를 가지고 map 형태로 반환
+    - `LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>>`
+    - ex) `/user`: `hasRole(ROLE_USER)`
+  - `DefaultFilterInvocationSecurityMetadataSource`에 requestMap 전달
+- `FilterSecurityInterceptor`
+  - 인가 처리를 담당하는 security filter
+  - invoke 메소드에서 진행 
+  - `FilterInvocation` -> **찾아보기**
+- `DefaultFilterInvocationSecurityMetadataSource`
+  - 위에 초기화 과정에서 받아온 requestMap 정보를 가지고 있는 상황
+  - `getAttributes`
+    - 여기서 애플리케이션 실행단계에서 생성해두었던 mapping 정보를 기반으로 자원정보에 대한 권한정보 추출하는 과정 진행
+
+### DB 방식의 인가 프로세스 구현
+- 위의 방식은 Config 클래스에서 미리 설정한 내용으로 하는 인가 처리 방식
+- `SecurityMetadataSource` 이것을 구현하면 됨
+  - `FilterInvocationSecurityMetadataSource`: url 방식 인가
+  - `MethodSecurityMetadataSource`: Method 권한 정보 추출
