@@ -45,3 +45,30 @@
 - `SecurityMetadataSource` 이것을 구현하면 됨
   - `FilterInvocationSecurityMetadataSource`: url 방식 인가
   - `MethodSecurityMetadataSource`: Method 권한 정보 추출
+
+<br>
+
+## :pushpin: FilterInvocationSecurityMetadataSource
+- custom FilterSecurityInterceptor 로 적용해서 Config 설정
+- UrlFilterInvocationSecurityMetadataSource 3번 호출됨
+  - `/mypage` 뿐만 아니라 `/js` 파일들도 호출됨
+
+### addFilterBefore
+- `SecurityConfig`에서 addFilterBefore 설정
+```kotlin
+.and()
+.addFilterBefore(customFilterSecurityInterceptor(), FilterSecurityInterceptor::class.java)
+```
+- 이런 식으로 기존 FilterSecurityInterceptor 앞에 custom filter 설정
+- FilterSecurityInterceptor 두 개가 등록
+
+```kotlin
+// FilterSecurityInterceptor
+if (isApplied(filterInvocation) && this.observeOncePerRequest) {
+    // filter already applied to this request and user wants us to observe
+    // once-per-request handling, so don't re-do security checking
+    filterInvocation.getChain().doFilter(filterInvocation.getRequest(), filterInvocation.getResponse());
+    return;
+}
+```
+- 앞에서 `FilterSecurityInterceptor` 호출된 적이 있으면 더이상 해당 Filter는 사용하지 않음

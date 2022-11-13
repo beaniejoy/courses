@@ -1,19 +1,31 @@
 package io.beaniejoy.coresecurity.security.config
 
+import io.beaniejoy.coresecurity.security.factory.UrlResourcesMapFactoryBean
 import io.beaniejoy.coresecurity.security.handler.FormAccessDeniedHandler
 import io.beaniejoy.coresecurity.security.handler.FormAuthenticationFailureHandler
 import io.beaniejoy.coresecurity.security.handler.FormAuthenticationSuccessHandler
+import io.beaniejoy.coresecurity.security.metadatasource.UrlFilterInvocationSecurityMetadataSource
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.annotation.Order
+import org.springframework.security.access.AccessDecisionManager
+import org.springframework.security.access.ConfigAttribute
+import org.springframework.security.access.SecurityConfig
+import org.springframework.security.access.vote.AffirmativeBased
+import org.springframework.security.access.vote.RoleVoter
 import org.springframework.security.authentication.AuthenticationDetailsSource
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer
 import org.springframework.security.crypto.factory.PasswordEncoderFactories
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
+import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource
+import org.springframework.security.web.access.intercept.FilterSecurityInterceptor
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher
+import org.springframework.security.web.util.matcher.RequestMatcher
 import javax.servlet.http.HttpServletRequest
 
 
@@ -29,14 +41,20 @@ class SecurityConfig {
     @Autowired
     lateinit var formAuthenticationFailureHandler: FormAuthenticationFailureHandler
 
+    @Autowired
+    lateinit var authenticationConfiguration: AuthenticationConfiguration
+
+    @Autowired
+    lateinit var urlResourcesMapFactoryBean: UrlResourcesMapFactoryBean
+
     @Bean
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
         return http
             .authorizeRequests()
-            .antMatchers("/", "/users", "user/login/**", "/login*").permitAll()
-            .antMatchers("/mypage").hasRole("USER")
-            .antMatchers("/messages").hasRole("MANAGER")
-            .antMatchers("/config").hasRole("ADMIN")
+//            .antMatchers("/", "/users", "user/login/**", "/login*").permitAll()
+//            .antMatchers("/mypage").hasRole("USER")
+//            .antMatchers("/messages").hasRole("MANAGER")
+//            .antMatchers("/config").hasRole("ADMIN")
             .anyRequest().authenticated()
 
             .and()
@@ -52,7 +70,11 @@ class SecurityConfig {
             .and()
             .exceptionHandling()
             .accessDeniedHandler(accessDeniedHandler())
-            .and().build()
+
+            .and()
+            .addFilterBefore(customFilterSecurityInterceptor(), FilterSecurityInterceptor::class.java)
+
+            .build()
     }
 
     @Bean
@@ -71,5 +93,24 @@ class SecurityConfig {
     @Bean
     fun accessDeniedHandler(): FormAccessDeniedHandler {
         return FormAccessDeniedHandler("/denied")
+    }
+
+    @Bean
+    fun customFilterSecurityInterceptor(): FilterSecurityInterceptor {
+        return FilterSecurityInterceptor().apply {
+            this.securityMetadataSource = urlFilterInvocationSecurityMetadataSource()
+            this.accessDecisionManager = affirmativeBased()
+            this.authenticationManager = authenticationConfiguration.authenticationManager
+        }
+    }
+
+    @Bean
+    fun urlFilterInvocationSecurityMetadataSource(): FilterInvocationSecurityMetadataSource {
+        return UrlFilterInvocationSecurityMetadataSource(urlResourcesMapFactoryBean.getObject())
+    }
+
+    @Bean
+    fun affirmativeBased(): AccessDecisionManager {
+        return AffirmativeBased(listOf(RoleVoter()))
     }
 }
