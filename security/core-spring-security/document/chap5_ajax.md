@@ -1,6 +1,6 @@
 # Chap 5) Ajax 인증 구현
 
-## 먼저 알아야할 점
+## :pushpin: 먼저 알아야할 점
 
 - 디버깅으로 인증 관련 필터를 확인하고 싶으면 `AbstractAuthenticationProcessingFilter` 참고
 - `UsernamePasswordAuthenticationFilter`은 `AbstractAuthenticationProcessingFilter`을 상속받은 클래스
@@ -15,7 +15,7 @@
 
 <br>
 
-## 인증 필터 - AjaxAuthenticationFilter
+## :pushpin: 인증 필터 - AjaxAuthenticationFilter
 - AbstractAuthenticationFilter를 상속받아서 config에 등록해야함
 - 여기서 문제가 Spring Security `WebSecurityConfigurerAdapter` deprecated 문제
 - AuthenticationManager를 따로 Bean 설정해서 Custom Filter에 주입해줘야 한다.
@@ -82,7 +82,7 @@ public void afterPropertiesSet() {
 
 <br>
 
-## AjaxAuthenticationProvider
+## :pushpin: AjaxAuthenticationProvider
 ```
 org.apache.http.client.ClientProtocolException
 ```
@@ -131,7 +131,7 @@ fun authenticationManager(): AuthenticationManager {
 
 <br>
 
-## 인증 및 인가 예외 처리
+## :pushpin: 인증 및 인가 예외 처리
 
 - `FilterSecurityInterceptor`
   - 여기서 인가 처리 담당(어떤 자원에 접근했을 때 접근 가능한 사용자인지 검증)
@@ -150,3 +150,11 @@ http
   .authenticationEntryPoint(ajaxLoginAuthenticationEntryPoint)  // 인증받지 않은 사용자에 대한 인가 예외 처리
   .accessDeniedHandler(ajaxAccessDeniedHandler)                 // 인증 받은 사용자의 허용받지 않은 자원 접근에 대한 예외 처리
 ```
+
+## :pushpin: Custom DSL
+- custom DSL 사용하는 이유는 한 곳에서 관련성있는 custom security 설정을 관리하기 위함
+  - ex. AjaxLogin 관련 설정들을 하나의 클래스 파일 안에서 관리 가능
+- `AjaxLoginConfigurer` 여기에 구현
+- `AbstractConfiguredSecurityBuilder`.`configure()` 여기서 설정
+  - `SecurityConfigurer`: configurer 최상위 인터페이스
+  - `init` -> `configure`로 이루어짐

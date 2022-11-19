@@ -1,6 +1,18 @@
 # Chap 6) 실전프로젝트 - 인가 프로세스 DB 연동 웹 계층 구현
 
-## 코틀린 프로젝트로 변환 중 이슈
+- 주의 사항
+  - `data.sql`이 application 실행시 spring security 설정보다 늦게 동작
+  - security metadata에 (요청정보 to 권한정보) DB 조회 후 설정하는 부분에서 데이터 조회 X
+  - 임시방편으로 최초 애플리케이션 실행시
+    - `ddl-auto: create`
+    - `sql.init.mode: always`
+  - 이후 애플리케이션 재실행시
+    - `ddl-auto: update`
+    - `sql.init.mode: never`
+
+<br>
+
+## :pushpin: 코틀린 프로젝트로 변환 중 이슈
 
 - 기존 `Account`에 `Resources`, `Role` 엔티티 추가
 
