@@ -84,3 +84,28 @@ if (isApplied(filterInvocation) && this.observeOncePerRequest) {
 }
 ```
 - 앞에서 `FilterSecurityInterceptor` 호출된 적이 있으면 더이상 해당 Filter는 사용하지 않음
+
+### FilterSecurityInterceptor 필터 적용 안하는 경우
+
+```kotlin
+.authorizeRequests()
+.anyRequest().authenticated()
+```
+- 이것에 의해 home 화면 진입 때부터 인증을 요구하게 된다.
+- customFilterSecurityInterceptor 를 통한 metadatasource를 따로 지정하지 않으면 다른 requestMap으로 설정
+  - `/login` -> permitAll (`loginPage("/login")` 설정)
+  - `/login_proc` -> permitAll (`loginProcessingUrl("/login_proc")` 설정)
+  - `any request`
+  - `/` 루트로 이동하면 any request에 걸려서 인증 요구를 받게 된다. (`/login` 페이지로 이동)
+- metadatasource 따로 지정하게 되면 설정된 내용만 requestMap에 등록
+  - any request 부분이 없고 딱 설정된 부분만 적용
+  - 그래서 설정된 요청정보 - 권한정보에 걸리지 않는 요청내용에 대해서는 null로 반환
+```kotlin
+// AbstractSecurityInterceptor
+Collection<ConfigAttribute> attributes = this.obtainSecurityMetadataSource().getAttributes(object);
+if (CollectionUtils.isEmpty(attributes)) {
+    //...
+    return null; // no further work post-invocation
+}
+```
+- `attributes`가 null로 반환되면 더이상 인가 과정을 진행하지 않는다.

@@ -14,6 +14,7 @@ spring:
           lob:
             non_contextual_creation: true
     defer-datasource-initialization: true
+    open-in-view: true
   sql:
     init:
       mode: never

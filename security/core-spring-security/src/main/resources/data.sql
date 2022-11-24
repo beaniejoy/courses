@@ -22,14 +22,14 @@ VALUES (3, 'ROLE_USER', '회원');
 INSERT INTO resources(resource_id, resource_name, http_method, order_num, resource_type)
 VALUES (1, '/admin/**', '', 1, 'url');
 
-INSERT INTO resources(resource_id, resource_name, http_method, order_num, resource_type)
-VALUES (2, 'io.security.corespringsecurity.aopsecurity.method.AopMethodService.methodTest', '', 2, 'method');
-
-INSERT INTO resources(resource_id, resource_name, http_method, order_num, resource_type)
-VALUES (3, 'io.security.corespringsecurity.aopsecurity.method.AopMethodService.innerCallMethodTest', '', 3, 'method');
-
-INSERT INTO resources(resource_id, resource_name, http_method, order_num, resource_type)
-VALUES (4, 'execution(* io.security.corespringsecurity.aopsecurity.pointcut.*Service.*(..))', '', 4, 'method');
+-- INSERT INTO resources(resource_id, resource_name, http_method, order_num, resource_type)
+-- VALUES (2, 'io.security.corespringsecurity.aopsecurity.method.AopMethodService.methodTest', '', 2, 'method');
+--
+-- INSERT INTO resources(resource_id, resource_name, http_method, order_num, resource_type)
+-- VALUES (3, 'io.security.corespringsecurity.aopsecurity.method.AopMethodService.innerCallMethodTest', '', 3, 'method');
+--
+-- INSERT INTO resources(resource_id, resource_name, http_method, order_num, resource_type)
+-- VALUES (4, 'execution(* io.security.corespringsecurity.aopsecurity.pointcut.*Service.*(..))', '', 4, 'method');
 
 INSERT INTO resources(resource_id, resource_name, http_method, order_num, resource_type)
 VALUES (5, '/users/**', '', 5, 'url');

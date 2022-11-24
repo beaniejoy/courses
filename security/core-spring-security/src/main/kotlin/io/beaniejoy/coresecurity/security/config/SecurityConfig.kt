@@ -1,6 +1,7 @@
 package io.beaniejoy.coresecurity.security.config
 
 import io.beaniejoy.coresecurity.security.factory.UrlResourcesMapFactoryBean
+import io.beaniejoy.coresecurity.security.filter.PermitAllFilter
 import io.beaniejoy.coresecurity.security.handler.FormAccessDeniedHandler
 import io.beaniejoy.coresecurity.security.handler.FormAuthenticationFailureHandler
 import io.beaniejoy.coresecurity.security.handler.FormAuthenticationSuccessHandler
@@ -11,8 +12,6 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.annotation.Order
 import org.springframework.security.access.AccessDecisionManager
-import org.springframework.security.access.ConfigAttribute
-import org.springframework.security.access.SecurityConfig
 import org.springframework.security.access.vote.AffirmativeBased
 import org.springframework.security.access.vote.RoleVoter
 import org.springframework.security.authentication.AuthenticationDetailsSource
@@ -24,8 +23,6 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher
-import org.springframework.security.web.util.matcher.RequestMatcher
 import javax.servlet.http.HttpServletRequest
 
 
@@ -46,6 +43,8 @@ class SecurityConfig {
 
     @Autowired
     lateinit var urlResourcesMapFactoryBean: UrlResourcesMapFactoryBean
+
+    private val permitAllResources: Array<String> = arrayOf("/", "/login")
 
     @Bean
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
@@ -97,7 +96,7 @@ class SecurityConfig {
 
     @Bean
     fun customFilterSecurityInterceptor(): FilterSecurityInterceptor {
-        return FilterSecurityInterceptor().apply {
+        return PermitAllFilter(*this.permitAllResources).apply {
             this.securityMetadataSource = urlFilterInvocationSecurityMetadataSource()
             this.accessDecisionManager = affirmativeBased()
             this.authenticationManager = authenticationConfiguration.authenticationManager

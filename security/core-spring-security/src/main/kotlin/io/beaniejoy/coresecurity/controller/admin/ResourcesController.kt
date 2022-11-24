@@ -6,18 +6,23 @@ import io.beaniejoy.coresecurity.domain.entity.Role
 import io.beaniejoy.coresecurity.repository.RoleRepository
 import io.beaniejoy.coresecurity.service.ResourcesService
 import io.beaniejoy.coresecurity.service.RoleService
+import io.beaniejoy.coresecurity.service.SecurityResourceService
+import org.springframework.security.access.ConfigAttribute
+import org.springframework.security.web.util.matcher.RequestMatcher
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.ui.set
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.ResponseBody
 
 @Controller
 class ResourcesController(
     private val resourcesService: ResourcesService,
     private val roleRepository: RoleRepository,
     private val roleService: RoleService,
+    private val securityResourcesService: SecurityResourceService
 ) {
     @GetMapping("/admin/resources")
     fun getResources(model: Model): String? {
@@ -74,7 +79,6 @@ class ResourcesController(
     }
 
     @GetMapping("/admin/resources/delete/{id}")
-    @Throws(Exception::class)
     fun removeResources(@PathVariable id: Long, model: Model): String {
         resourcesService.deleteResources(id)
 

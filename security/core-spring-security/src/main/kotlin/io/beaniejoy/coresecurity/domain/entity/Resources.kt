@@ -5,7 +5,7 @@ import javax.persistence.*
 
 @Entity
 @Table(name = "RESOURCES")
-class  Resources protected constructor(
+class Resources protected constructor(
     resourceName: String? = null,
     httpMethod: String? = null,
     orderNum: Int? = null,
