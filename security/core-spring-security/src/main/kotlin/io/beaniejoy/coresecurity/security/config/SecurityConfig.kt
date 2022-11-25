@@ -22,10 +22,8 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.crypto.factory.PasswordEncoderFactories
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
-import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor
 import javax.servlet.http.HttpServletRequest
-
 
 @Configuration
 @Order(1)
@@ -54,21 +52,22 @@ class SecurityConfig {
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
         return http
             .authorizeRequests()
-//            .antMatchers("/", "/users", "user/login/**", "/login*").permitAll()
+            .antMatchers(*permitAllResources).permitAll() // custom securityMetadataSource 적용하면 permitAll은 의미 없는 것이 아닌지
 //            .antMatchers("/mypage").hasRole("USER")
 //            .antMatchers("/messages").hasRole("MANAGER")
 //            .antMatchers("/config").hasRole("ADMIN")
             .anyRequest().authenticated()
 
-            .and()
-            .formLogin()
-            .loginPage("/login")
-            .loginProcessingUrl("/login_proc")
-            .authenticationDetailsSource(authenticationDetailsSource)
-            .defaultSuccessUrl("/")
-            .successHandler(formAuthenticationSuccessHandler)
-            .failureHandler(formAuthenticationFailureHandler)
-            .permitAll()
+                // formLogin 기능이 필요 없을 듯
+//            .and()
+//            .formLogin()
+//            .loginPage("/login")
+//            .loginProcessingUrl("/login_proc")
+//            .authenticationDetailsSource(authenticationDetailsSource)
+//            .defaultSuccessUrl("/")
+//            .successHandler(formAuthenticationSuccessHandler)
+//            .failureHandler(formAuthenticationFailureHandler)
+//            .permitAll()
 
             .and()
             .exceptionHandling()
@@ -100,7 +99,7 @@ class SecurityConfig {
 
     @Bean
     fun customFilterSecurityInterceptor(): FilterSecurityInterceptor {
-        return PermitAllFilter(*this.permitAllResources).apply {
+        return FilterSecurityInterceptor().apply {
             this.securityMetadataSource = urlFilterInvocationSecurityMetadataSource()
             this.accessDecisionManager = affirmativeBased()
             this.authenticationManager = authenticationConfiguration.authenticationManager
@@ -112,7 +111,9 @@ class SecurityConfig {
         return UrlFilterInvocationSecurityMetadataSource(
             requestMap = urlResourcesMapFactoryBean.getObject(),
             securityResourceService = securityResourceService
-        )
+        ).apply {
+            this.setPermitAllResources(this@SecurityConfig.permitAllResources)
+        }
     }
 
     @Bean

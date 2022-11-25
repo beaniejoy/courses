@@ -175,6 +175,12 @@ return http
 - redirect는 사용자가 다시 요청을 보내는 것으로 알고 있었는데 페이지 뒤로가기 하면 B 진입 전인 A 페이지로 이동
     - **:pushpin: 이부분이 와닿지 않음**
 
+<br>
+
+##  Security Config 내에 FormLogin 설정시 내용
+- `formLogin()` 설정시 default로 설정되는 여러 내용들 존재
+- 인증이 안된 사용자라 판단이 되면 `loginPage`로 이동(default `/login`)
+  - security 기본 강의 form login 내용 참고
 
 
 

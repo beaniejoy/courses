@@ -44,7 +44,7 @@ class AjaxSecurityConfig {
         http
             .antMatcher("/api/**")
             .authorizeRequests()
-            .antMatchers("/api/messages").hasRole("MANAGER")
+//            .antMatchers("/api/messages").hasRole("MANAGER")
             .antMatchers("/api/login").permitAll()
             .anyRequest().authenticated()
 
