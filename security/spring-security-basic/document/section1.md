@@ -38,6 +38,15 @@
   - filter들을 관리하는 bean
   - Security를 등록하면 관련 filter들도 등록된다.
 
+### Form Login 내부 default 설정
+- form login 설정하는 순간 관련 Security Filter 등록됨
+  - `UsernamePasswordAuthenticationFilter`
+    - form login 전용 인증 프로세스 처리
+  - `DefaultLoginPageGeneratingFilter`
+    - security에서 제공하는 default login 페이지 생성부분
+    - `doFilter`에서 `generateLoginPageHtml`처리
+
+
 <br>
 
 ## 📌 Logout 처리, LogoutFilter
