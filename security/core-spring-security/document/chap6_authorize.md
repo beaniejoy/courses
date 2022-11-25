@@ -109,3 +109,22 @@ if (CollectionUtils.isEmpty(attributes)) {
 }
 ```
 - `attributes`가 null로 반환되면 더이상 인가 과정을 진행하지 않는다.
+
+<br>
+
+## :pushpin: 웹 기반 인가처리 실시간 반영
+- resource, role 정보가 변경되면 실시간으로 `metadatasource` `requestMap`에 반영되어야 한다.
+- resources 생성, 삭제시 `reload` 메소드 적용 
+
+### 주의점
+- `@ManyToMany` 이슈(JPA)
+```sql
+delete from role_resources where resource_id=?;
+insert into role_resources(resource_id, role_id) 
+values (?, ?);
+```
+- ManyToMany 로 연결되어 있는 resources, role
+- resources entity: roleSet에 요청받은 새로운 role을 넣고 setter 변경
+- 그렇게 되면 위와 같이 쿼리가 role_resources 매핑 테이블에서 resource_id 관련 데이터 전부 삭제
+- 그 다음 새로운 데이터 insert 진행
+- **매핑 테이블에서 연관 데이터 전부 삭제한다는 점에서 비효율적**

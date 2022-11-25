@@ -39,7 +39,8 @@ class Resources protected constructor(
         joinColumns = [JoinColumn(name = "resource_id")],
         inverseJoinColumns = [JoinColumn(name = "role_id")]
     )
-    val roleSet: MutableSet<Role> = roleSet
+    var roleSet: MutableSet<Role> = roleSet
+        protected set
 
     companion object {
         fun createResources(
@@ -62,4 +63,17 @@ class Resources protected constructor(
             return Resources()
         }
     }
+        fun updateEntity(
+            resourceName: String,
+            httpMethod: String,
+            orderNum: Int,
+            resourceType: String,
+            roleSet: HashSet<Role>
+        ) {
+            this.resourceName = resourceName
+            this.httpMethod = httpMethod
+            this.orderNum = orderNum
+            this.resourceType = resourceType
+            this.roleSet = roleSet
+        }
 }

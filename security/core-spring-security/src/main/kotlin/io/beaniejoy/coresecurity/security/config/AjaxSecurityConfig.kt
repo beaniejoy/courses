@@ -55,7 +55,8 @@ class AjaxSecurityConfig {
             .and()
             // ### custom DSL 이후 불필요 ###
 //            .addFilterBefore(ajaxLoginProcessingFilter(), UsernamePasswordAuthenticationFilter::class.java)
-            .csrf().disable()
+            // login page 내의 csrf token 기능 on
+//            .csrf().disable()
 
         return customConfigurerAjax(http)
             .and()

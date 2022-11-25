@@ -6,6 +6,7 @@ import io.beaniejoy.coresecurity.security.handler.FormAccessDeniedHandler
 import io.beaniejoy.coresecurity.security.handler.FormAuthenticationFailureHandler
 import io.beaniejoy.coresecurity.security.handler.FormAuthenticationSuccessHandler
 import io.beaniejoy.coresecurity.security.metadatasource.UrlFilterInvocationSecurityMetadataSource
+import io.beaniejoy.coresecurity.service.SecurityResourceService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest
 import org.springframework.context.annotation.Bean
@@ -43,6 +44,9 @@ class SecurityConfig {
 
     @Autowired
     lateinit var urlResourcesMapFactoryBean: UrlResourcesMapFactoryBean
+
+    @Autowired
+    lateinit var securityResourceService: SecurityResourceService
 
     private val permitAllResources: Array<String> = arrayOf("/", "/login")
 
@@ -104,8 +108,11 @@ class SecurityConfig {
     }
 
     @Bean
-    fun urlFilterInvocationSecurityMetadataSource(): FilterInvocationSecurityMetadataSource {
-        return UrlFilterInvocationSecurityMetadataSource(urlResourcesMapFactoryBean.getObject())
+    fun urlFilterInvocationSecurityMetadataSource(): UrlFilterInvocationSecurityMetadataSource {
+        return UrlFilterInvocationSecurityMetadataSource(
+            requestMap = urlResourcesMapFactoryBean.getObject(),
+            securityResourceService = securityResourceService
+        )
     }
 
     @Bean
