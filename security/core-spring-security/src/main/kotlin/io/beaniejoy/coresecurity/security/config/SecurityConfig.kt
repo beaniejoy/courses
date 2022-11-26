@@ -1,11 +1,11 @@
 package io.beaniejoy.coresecurity.security.config
 
 import io.beaniejoy.coresecurity.security.factory.UrlResourcesMapFactoryBean
-import io.beaniejoy.coresecurity.security.filter.PermitAllFilter
 import io.beaniejoy.coresecurity.security.handler.FormAccessDeniedHandler
 import io.beaniejoy.coresecurity.security.handler.FormAuthenticationFailureHandler
 import io.beaniejoy.coresecurity.security.handler.FormAuthenticationSuccessHandler
 import io.beaniejoy.coresecurity.security.metadatasource.UrlFilterInvocationSecurityMetadataSource
+import io.beaniejoy.coresecurity.service.RoleHierarchyService
 import io.beaniejoy.coresecurity.service.SecurityResourceService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest
@@ -13,7 +13,11 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.annotation.Order
 import org.springframework.security.access.AccessDecisionManager
+import org.springframework.security.access.AccessDecisionVoter
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl
 import org.springframework.security.access.vote.AffirmativeBased
+import org.springframework.security.access.vote.RoleHierarchyVoter
 import org.springframework.security.access.vote.RoleVoter
 import org.springframework.security.authentication.AuthenticationDetailsSource
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration
@@ -46,6 +50,9 @@ class SecurityConfig {
     @Autowired
     lateinit var securityResourceService: SecurityResourceService
 
+    @Autowired
+    lateinit var roleHierarchyService: RoleHierarchyService
+
     private val permitAllResources: Array<String> = arrayOf("/", "/login")
 
     @Bean
@@ -59,9 +66,9 @@ class SecurityConfig {
             .anyRequest().authenticated()
 
                 // formLogin 기능이 필요 없을 듯
-//            .and()
-//            .formLogin()
-//            .loginPage("/login")
+            .and()
+            .formLogin()
+            .loginPage("/login")
 //            .loginProcessingUrl("/login_proc")
 //            .authenticationDetailsSource(authenticationDetailsSource)
 //            .defaultSuccessUrl("/")
@@ -118,6 +125,25 @@ class SecurityConfig {
 
     @Bean
     fun affirmativeBased(): AccessDecisionManager {
-        return AffirmativeBased(listOf(RoleVoter()))
+        return AffirmativeBased(getAccessDecisionVoters())
+    }
+
+    private fun getAccessDecisionVoters(): MutableList<AccessDecisionVoter<*>> {
+        return mutableListOf<AccessDecisionVoter<out Any>>().apply {
+//            add(RoleVoter())
+            add(roleVoter())    // apply role hierarchy setup
+        }
+    }
+
+    @Bean
+    fun roleVoter(): AccessDecisionVoter<out Any> {
+        return RoleHierarchyVoter(roleHierarchy())
+    }
+
+    @Bean
+    fun roleHierarchy(): RoleHierarchy {
+        return RoleHierarchyImpl().apply {
+            setHierarchy(roleHierarchyService.findAllHierarchy())
+        }
     }
 }

@@ -128,3 +128,21 @@ values (?, ?);
 - 그렇게 되면 위와 같이 쿼리가 role_resources 매핑 테이블에서 resource_id 관련 데이터 전부 삭제
 - 그 다음 새로운 데이터 insert 진행
 - **매핑 테이블에서 연관 데이터 전부 삭제한다는 점에서 비효율적**
+
+<br>
+
+## :pushpin: 계층 권한 적용하기(RoleHierarchy)
+
+### RoleHierarchy
+- `RoleHierarchy` -> `RoleHierarchyImpl` 객체에 setHierarchy 메소드를 통해서 권한 계층정보를 전달해야 한다.
+```text
+ROLE_ADMIN > ROLE_MANAGER
+ROLE_MANAGER > ROLE_USER
+```
+- 이런 식의 string 값으로 `RoleHierarchyImpl`에 전달해야 한다.
+- 이렇게 되면 role 계층 정보에 의해 ROLE_ADMIN 권한만 가진 사용자는 하위 권한 모두 접근 가능
+
+### 주의점
+- RoleHierarchy Entity 설정할 때
+  - parentName을 JoinColumn에 `referencedColumnName` 설정
+  - 이 때 `referencedColumnName`으로 설정된 field는 serializable 해야 한다. ([링크](https://www.baeldung.com/jpa-entities-serializable#2-hibernate-joincolumn-annotation))
