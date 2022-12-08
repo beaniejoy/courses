@@ -2,6 +2,7 @@ package io.beaniejoy.coresecurity.security.voter
 
 import io.beaniejoy.coresecurity.service.SecurityResourceService
 import org.springframework.security.access.AccessDecisionVoter
+import org.springframework.security.access.AccessDecisionVoter.ACCESS_ABSTAIN
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.access.ConfigAttribute
 import org.springframework.security.core.Authentication
@@ -26,11 +27,12 @@ class IpAddressVoter(
         val details = authentication!!.details as WebAuthenticationDetails
         val remoteAddress = details.remoteAddress
 
-        securityResourceService.getAccessIpList().forEach {
-            if (remoteAddress == it)
-                throw AccessDeniedException("Invalid IpAddress")
+        if (securityResourceService.getAccessIpList().contains(remoteAddress).not()) {
+            throw AccessDeniedException("Invalid IpAddress")
         }
 
-        return 0
+        // 통과되면 이후 본래의 인가 처리로 넘김(추가 심의 진행)
+        return ACCESS_ABSTAIN
+
     }
 }

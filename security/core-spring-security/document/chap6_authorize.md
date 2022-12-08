@@ -166,7 +166,19 @@ ROLE_MANAGER > ROLE_USER
 
 - `AccessDecisionVoter` 상속
 - 여기서 1차적으로 허가된 ip 주소인지 판별
-- 허용 -> `ACCESS_ABSTAIN` (보류, 추가 심의 진행) -> `AccessDecisionManager`에서 본래 voter들을 가지고 인가 과정 진행
-- 만약 허용된 ip 주소가 아니면 `ACCESS_DENIED`가 아닌 `AccessDeniedException` 발생 시켜서 바로 접근 제한해야 함
+- 허용된 ip address 경우 
+  - `ACCESS_ABSTAIN` (보류, 추가 심의 진행) 
+  - `AccessDecisionManager`에서 본래 voter들을 가지고 인가 과정 진행
+  - 여기서 `ACCESS_GRANTED`로 해버리면 `AffirmativeBased` 기반에서는 본래의 인가처리 없이 통과되어버리는 사태발생
+- 허용된 ip address X 경우 
+  - `ACCESS_DENIED`가 아닌 `AccessDeniedException` 발생 시켜서 바로 접근 제한해야 함
 
-
+그리고 강의에서는 `IpAddressVoter`에서 `WebAuthenticationDetails` 을 사용해서 remoteAddress를 가져오는데
+```kotlin
+// AjaxLoginProcessingFilter
+val token = AjaxAuthenticationToken(accountDto.username, accountDto.password).apply {
+  this.details = WebAuthenticationDetails(request)
+}
+```
+Filter 차원에서 AuthenticationToken 생성할 때 WebAuthenticationDetails를 넣어야 한다.  
+(안그러면 NullPointerException 발생)

@@ -8,6 +8,7 @@ import mu.KotlinLogging
 import org.springframework.http.HttpMethod
 import org.springframework.security.core.Authentication
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter
+import org.springframework.security.web.authentication.WebAuthenticationDetails
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher
 import org.springframework.util.StringUtils
 import javax.servlet.http.HttpServletRequest
@@ -32,7 +33,9 @@ class AjaxLoginProcessingFilter :
             throw IllegalArgumentException("Username & Password are not empty!!")
         }
 
-        val token = AjaxAuthenticationToken(accountDto.username, accountDto.password)
+        val token = AjaxAuthenticationToken(accountDto.username, accountDto.password).apply {
+            this.details = WebAuthenticationDetails(request)
+        }
 
         return this.authenticationManager.authenticate(token)
     }
