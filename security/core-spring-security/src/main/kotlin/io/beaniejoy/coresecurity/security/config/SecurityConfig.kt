@@ -5,6 +5,7 @@ import io.beaniejoy.coresecurity.security.handler.FormAccessDeniedHandler
 import io.beaniejoy.coresecurity.security.handler.FormAuthenticationFailureHandler
 import io.beaniejoy.coresecurity.security.handler.FormAuthenticationSuccessHandler
 import io.beaniejoy.coresecurity.security.metadatasource.UrlFilterInvocationSecurityMetadataSource
+import io.beaniejoy.coresecurity.security.voter.IpAddressVoter
 import io.beaniejoy.coresecurity.service.RoleHierarchyService
 import io.beaniejoy.coresecurity.service.SecurityResourceService
 import org.springframework.beans.factory.annotation.Autowired
@@ -131,6 +132,7 @@ class SecurityConfig {
     private fun getAccessDecisionVoters(): MutableList<AccessDecisionVoter<*>> {
         return mutableListOf<AccessDecisionVoter<out Any>>().apply {
 //            add(RoleVoter())
+            add(IpAddressVoter(securityResourceService))
             add(roleVoter())    // apply role hierarchy setup
         }
     }

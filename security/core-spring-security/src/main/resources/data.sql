@@ -44,37 +44,48 @@ INSERT INTO resources(resource_id, resource_name, http_method, order_num, resour
 VALUES (18, '/config', '', 18, 'url');
 
 -- role_resources mapping table
+-- ROLE_ADMIN - /admin/**
 INSERT INTO role_resources(role_id, resource_id)
 VALUES (1, 1);
 
+-- ROLE_ADMIN - /config
 INSERT INTO role_resources(role_id, resource_id)
 VALUES (1, 18);
 
+-- ROLE_MANAGER - aop
 INSERT INTO role_resources(role_id, resource_id)
 VALUES (2, 2);
 
+-- ROLE_MANAGER - aop
 INSERT INTO role_resources(role_id, resource_id)
 VALUES (2, 3);
 
+-- ROLE_MANAGER - aop
 INSERT INTO role_resources(role_id, resource_id)
 VALUES (2, 4);
 
+-- ROLE_MANAGER - /messages
 INSERT INTO role_resources(role_id, resource_id)
 VALUES (2, 17);
 
+-- ROLE_USER - /user/**
 INSERT INTO role_resources(role_id, resource_id)
 VALUES (3, 5);
 
+-- ROLE_USER - /mypage
 INSERT INTO role_resources(role_id, resource_id)
 VALUES (3, 16);
 
 -- account_roles mapping table
+-- admin - ROLE_ADMIN
 INSERT INTO account_roles(account_id, role_id)
 VALUES (3, 1);
 
+-- manager - ROLE_MANAGER
 INSERT INTO account_roles(account_id, role_id)
 VALUES (2, 2);
 
+-- user - ROLE_USER
 INSERT INTO account_roles(account_id, role_id)
 VALUES (1, 3);
 
@@ -86,3 +97,10 @@ VALUES (21, 'ROLE_MANAGER', 'ROLE_ADMIN');
 
 INSERT INTO role_hierarchy(id, child_name, parent_name)
 VALUES (22, 'ROLE_USER', 'ROLE_MANAGER');
+
+-- ip address authorization
+INSERT INTO access_ip(ip_id, ip_address)
+VALUES (10, '0:0:0:0:0:0:0:1');
+
+INSERT INTO access_ip(ip_id, ip_address)
+VALUES (11, '127.0.0.1');

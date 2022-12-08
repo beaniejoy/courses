@@ -146,3 +146,27 @@ ROLE_MANAGER > ROLE_USER
 - RoleHierarchy Entity 설정할 때
   - parentName을 JoinColumn에 `referencedColumnName` 설정
   - 이 때 `referencedColumnName`으로 설정된 field는 serializable 해야 한다. ([링크](https://www.baeldung.com/jpa-entities-serializable#2-hibernate-joincolumn-annotation))
+
+<br>
+
+## :pushpin: 아이피 접속 제한하기 - CustomAddressVoter
+
+인가 과정에서
+- `FilterSecurityInterceptor`(`AbstractSecurityInterceptor`) - `attemptAuthorization` 
+  - `AccessDecisionManager` - `decide` 
+    - voter를 가지고 인가 허용 여부 체크 
+    - 3개 구현체 `AffirmativeBased`, `ConsensusBased`, `UnanimousBased`
+  - `AccessDecisionVoter` - `vote` 
+    - `List<AccessDecisionVoter>` 형태로 Manager가 가지고 있음
+    - 각각의 voter들은 기준을 가지고 `ACCESS_DENIED`, `ACCESS_GRANTED` 결정
+
+이런 식으로 진행
+
+### IpAddressVoter
+
+- `AccessDecisionVoter` 상속
+- 여기서 1차적으로 허가된 ip 주소인지 판별
+- 허용 -> `ACCESS_ABSTAIN` (보류, 추가 심의 진행) -> `AccessDecisionManager`에서 본래 voter들을 가지고 인가 과정 진행
+- 만약 허용된 ip 주소가 아니면 `ACCESS_DENIED`가 아닌 `AccessDeniedException` 발생 시켜서 바로 접근 제한해야 함
+
+

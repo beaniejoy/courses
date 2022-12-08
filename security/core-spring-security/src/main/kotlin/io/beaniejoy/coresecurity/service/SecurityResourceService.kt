@@ -1,23 +1,20 @@
 package io.beaniejoy.coresecurity.service
 
-import io.beaniejoy.coresecurity.domain.entity.Resources
+import io.beaniejoy.coresecurity.repository.AccessIpRepository
 import io.beaniejoy.coresecurity.repository.ResourcesRepository
-import io.beaniejoy.coresecurity.util.Transaction
 import mu.KLogging
-import org.hibernate.Hibernate
 import org.springframework.security.access.ConfigAttribute
 import org.springframework.security.access.SecurityConfig
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher
 import org.springframework.security.web.util.matcher.RequestMatcher
 import org.springframework.stereotype.Service
-import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.annotation.Transactional
-import org.springframework.transaction.support.AbstractPlatformTransactionManager
 
 @Service
 @Transactional
 class SecurityResourceService(
-    private val resourcesRepository: ResourcesRepository
+    private val resourcesRepository: ResourcesRepository,
+    private val accessIpRepository: AccessIpRepository
 ) {
     companion object : KLogging()
 
@@ -37,5 +34,11 @@ class SecurityResourceService(
         logger.info { "resourceList $linkedHashMap" }
 
         return linkedHashMap
+    }
+
+    fun getAccessIpList(): List<String> {
+        return accessIpRepository.findAll().map {
+            it.ipAddress
+        }
     }
 }
