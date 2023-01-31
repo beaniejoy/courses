@@ -70,6 +70,6 @@ class OrderService(
      * 검색
      */
     fun findOrders(orderSearch: OrderSearch): List<Order> {
-        return orderRepository.findAllByString(orderSearch)
+        return orderRepository.findAll(orderSearch)
     }
 }

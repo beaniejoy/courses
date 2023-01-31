@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.transaction.annotation.Transactional
 
 @SpringBootTest
@@ -23,20 +24,20 @@ internal class MemberServiceTest {
     // @Rollback(false)
     fun 회원가입() {
         // given
-        val member = Member().apply { name = "beanie" }
+        val member = Member.createMember("beanie")
 
         // when
         val savedId = memberService.join(member)
 
         // then
-        assertEquals(member, memberRepository.findOne(savedId))
+        assertEquals(member, memberRepository.findByIdOrNull(savedId))
     }
 
     @Test
     fun 중복_회원_예외() {
         // given
-        val member1 = Member().apply { name = "beanie" }
-        val member2 = Member().apply { name = "beanie" }
+        val member1 = Member.createMember("beanie")
+        val member2 = Member.createMember("beanie")
 
         // when
         memberService.join(member1)

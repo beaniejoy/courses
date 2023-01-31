@@ -103,10 +103,7 @@ internal class OrderServiceTest {
     }
 
     private fun createMember(): Member {
-        val member = Member().apply {
-            name = "회원1"
-            address = Address("서울", "강가", "123-123")
-        }
+        val member = Member.createMember(name = "회원1", address = Address("서울", "강가", "123-123"))
         em.persist(member)
         return member
     }

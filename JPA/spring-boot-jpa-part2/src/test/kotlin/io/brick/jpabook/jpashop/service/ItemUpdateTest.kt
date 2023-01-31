@@ -13,7 +13,7 @@ internal class ItemUpdateTest {
 
     @Test
     fun updateTest() {
-        val book = em.find(Book::class.java, 1L)
+        val book = em.find(Book::class.java, 2L)
 
         // TX
         book.name = "update name"

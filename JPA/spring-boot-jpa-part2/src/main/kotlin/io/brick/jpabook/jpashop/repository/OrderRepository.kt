@@ -1,7 +1,11 @@
 package io.brick.jpabook.jpashop.repository
 
+import com.querydsl.core.types.dsl.BooleanExpression
+import com.querydsl.jpa.impl.JPAQueryFactory
 import io.brick.jpabook.jpashop.domain.Order
 import io.brick.jpabook.jpashop.domain.OrderStatus
+import io.brick.jpabook.jpashop.domain.QMember.member
+import io.brick.jpabook.jpashop.domain.QOrder.*
 import org.springframework.stereotype.Repository
 import org.springframework.util.StringUtils
 import javax.persistence.EntityManager
@@ -87,6 +91,33 @@ class OrderRepository(
         val query = em.createQuery(cq).setMaxResults(1_000)
 
         return query.resultList
+    }
+
+    // QueryDSL
+    fun findAll(orderSearch: OrderSearch): List<Order> {
+        val query = JPAQueryFactory(em)
+
+        return query
+            .select(order)
+            .from(order)
+            .join(order.member, member)
+            .where(statusEq(orderSearch.orderStatus), nameLike(orderSearch.memberName))
+            .limit(1000)
+            .fetch()
+    }
+
+    private fun statusEq(statusCond: OrderStatus?): BooleanExpression? {
+        if (statusCond == null)
+            return null
+
+        return order.status.eq(statusCond)
+    }
+
+    private fun nameLike(nameCond: String?): BooleanExpression? {
+        if (nameCond.isNullOrBlank())
+            return null
+
+        return member.name.like(nameCond)
     }
 
     fun findAllWithMemberDelivery(): List<Order> {
