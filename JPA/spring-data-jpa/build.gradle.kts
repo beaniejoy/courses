@@ -16,12 +16,27 @@ repositories {
     mavenCentral()
 }
 
+allOpen {
+    annotation("jakarta.persistence.Entity")
+    annotation("jakarta.persistence.Embeddable")
+    annotation("jakarta.persistence.MappedSuperclass")
+}
+
+noArg {
+    annotation("jakarta.persistence.Entity")
+    annotation("jakarta.persistence.Embeddable")
+    annotation("jakarta.persistence.MappedSuperclass")
+}
+
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+
+    implementation("com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.8.1")
+
     runtimeOnly("com.h2database:h2")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
