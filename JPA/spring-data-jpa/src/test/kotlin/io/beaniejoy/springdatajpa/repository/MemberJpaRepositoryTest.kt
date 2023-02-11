@@ -59,4 +59,51 @@ class MemberJpaRepositoryTest {
         val deletedCount = memberJpaRepository.count()
         assertThat(deletedCount).isEqualTo(0)
     }
+
+    @Test
+    fun findByUsernameAndAgeGreaterThan() {
+        val member1 = Member.createMember("member1", 10)
+        val member2 = Member.createMember("member1", 20)
+        memberJpaRepository.save(member1)
+        memberJpaRepository.save(member2)
+
+        val result = memberJpaRepository.findByUsernameAndAgeGreaterThan("member1", 15)
+        
+        assertThat(result[0].username).isEqualTo("member1")
+        assertThat(result[0].age).isEqualTo(20)
+        assertThat(result.size).isEqualTo(1)
+    }
+
+    @Test
+    fun testNamedQuery() {
+        val member1 = Member.createMember("member1", 10)
+        val member2 = Member.createMember("member2", 20)
+        memberJpaRepository.save(member1)
+        memberJpaRepository.save(member2)
+
+        val result = memberJpaRepository.findByUsername("member1")
+        assertThat(result[0].username).isEqualTo("member1")
+        assertThat(result[0].age).isEqualTo(10)
+        assertThat(result.size).isEqualTo(1)
+    }
+
+    @Test
+    fun testPaging() {
+        memberJpaRepository.save(Member.createMember("member1", 10))
+        memberJpaRepository.save(Member.createMember("member2", 10))
+        memberJpaRepository.save(Member.createMember("member3", 10))
+        memberJpaRepository.save(Member.createMember("member4", 10))
+        memberJpaRepository.save(Member.createMember("member5", 10))
+
+        val age = 10
+        val offset = 0
+        val limit = 3
+
+        val members = memberJpaRepository.findByPage(age, offset, limit)
+        val totalCount = memberJpaRepository.totalCount(10)
+
+        //then
+        assertThat(members.size).isEqualTo(3)
+        assertThat(totalCount).isEqualTo(5)
+    }
 }

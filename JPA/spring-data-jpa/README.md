@@ -21,3 +21,87 @@ JpaRepository > PagingAndSortingRepository > CrudRepository > Repository
   - `Repository`
 - `spring-data-jpa`
   - `JpaRepository`
+
+<br>
+
+## :pushpin: 쿼리 메소드 기능
+ 
+### 메소드 이름으로 쿼리 생성
+
+- select: `find...By`, `read...By`, `get...By`
+- count: `count...By`
+- exists: `exists...By`
+- distinct: `findDistinct`, `findMemberDistinctBy`
+- limit: `findFirst3`, `findFirst`, `findTop3`
+
+```kotlin
+fun findHelloBy(): List<Member>
+fun findTop3HelloBy(): List<Member>
+```
+위 방식대로 사용하면 Hello는 무시되고 전체조회와 같이 나온다.
+
+### JPA NamedQuery
+
+- JPQL 설정
+```kotlin
+// Member.kt
+@Entity
+@NamedQuery(
+    name = "Member.findByUsername",
+    query = "select m from Member m where m.username = :username"
+)
+class Member {
+    //...
+}
+```
+```kotlin
+// MemberJpaRepository.kt
+fun findByUsername(username: String): List<Member> { 
+    return em.createNamedQuery("Member.findByUsername", Member::class.java)
+        .setParameter("username", username)
+        .resultList
+}
+```
+- Spring Data JPA repository 설정
+```kotlin
+// MemberRepository.kt
+@Query(name = "Member.findByUsername")
+fun findByUsername(@Param("username") username: String): List<Member>
+```
+여기서 `@Query(name = "Member.findByUsername")` 생략 가능  
+**Data JPA가 알아서 `Member.[methodName]`으로 된 NamedQuery를 찾고 없으면 메소드 이름 생성방법으로 쿼리 작성한다.**
+
+> 순서: NamedQuery 먼저 찾고 없으면 > Method Name Query 
+
+하지만 실무에서는 NamedQuery 방식 거의 사용 X (관리가 힘듬)  
+- **유일한 장점**  
+  - application 최초 실행 loading 시점에서 NamedQuery를 파싱
+  - 이 과정에서 작성된 JPQL에서 문법오류 찾아내준다.
+  - `where m.userwrongname = :username` > 이걸 찾아내 준다.
+  - (`createQuery` 통한 JPQL에서는 못 찾아냄, 실제 사용될 때 오류 검출) 
+
+### @Query, Repository method 직접 지정
+
+```kotlin
+@Query("select m from Member m where m.username = :username and m.age = :age")
+fun findUser(@Param("username") username: String, @Param("age") age: Int): List<Member>
+```
+- `JpaRepository` 상속받은 인터페이스 메소드에 `@Query`로 직접 지정 가능
+- 장점은 NamedQuery와 비슷하게 application loading 시점에 JPQL 파싱을 통한 문법 오류 검출가능
+  - 잘못 입력된 where 칼럼이름도 검출
+- **사실 위의 `@Query`는 이름이 없는 NamedQuery와 같다.**
+
+### 반환 타입
+- Spring Data JPA는 반환타입을 유연하게 처리할 수 있게 해준다.
+```kotlin
+fun findListByUsername(username: String): List<Member> // 컬렉션
+fun findMemberByUsername(username: String): Member? // 단건
+fun findOptionalByUsername(username: String): Optional<Member> // Optional wrapping
+```
+- list 컬렉션 반환에서 데이터가 없는 경우 size 0인 empty list 반환해준다.
+- 단건 조회인데 데이터 조회 결과가 2개 이상이면 에러 발생
+  - `NonUniqueResultException` (JPA exception)
+  - `IncorrectResultSizeDataAccessException` (springframework exception): 이걸로 변환하게 된다.
+
+> spring framework에서는 하부 repository 기술에 의존하는 것이 아닌 spring 추상화된 interface로 변환  
+> 그래서 MongoDB, JPA, Redis 등의 하부 repository 기술이 변경되어도 코드에서는 변경지점이 없게 됨

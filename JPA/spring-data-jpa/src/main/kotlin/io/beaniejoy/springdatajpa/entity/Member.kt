@@ -3,6 +3,10 @@ package io.beaniejoy.springdatajpa.entity
 import jakarta.persistence.*
 
 @Entity
+@NamedQuery(
+    name = "Member.findByUsername",
+    query = "select m from Member m where m.username = :username"
+)
 class Member protected constructor(
     username: String,
     age: Int

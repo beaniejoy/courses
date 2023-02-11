@@ -1,10 +1,14 @@
 package io.beaniejoy.springdatajpa.repository
 
 import io.beaniejoy.springdatajpa.entity.Member
+import io.beaniejoy.springdatajpa.entity.Team
+import jakarta.persistence.NonUniqueResultException
 import org.assertj.core.api.Assertions.*
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.dao.IncorrectResultSizeDataAccessException
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.test.annotation.Rollback
 import org.springframework.transaction.annotation.Transactional
@@ -16,6 +20,8 @@ class MemberRepositoryTest {
     // spring data jpa 알아서 구현체를 만들어서 injection을 해준다.
     @Autowired
     lateinit var memberRepository: MemberRepository
+    @Autowired
+    lateinit var teamRepository: TeamRepository
 
     @Test
     fun testMember() {
@@ -55,5 +61,121 @@ class MemberRepositoryTest {
         memberRepository.delete(member2)
         val deletedCount = memberRepository.count()
         assertThat(deletedCount).isEqualTo(0)
+    }
+
+    @Test
+    fun findByUsernameAndAgeGreaterThan() {
+        val member1 = Member.createMember("member1", 10)
+        val member2 = Member.createMember("member1", 20)
+        memberRepository.save(member1)
+        memberRepository.save(member2)
+
+        val result = memberRepository.findByUsernameAndAgeGreaterThan("member1", 15)
+
+        assertThat(result[0].username).isEqualTo("member1")
+        assertThat(result[0].age).isEqualTo(20)
+        assertThat(result.size).isEqualTo(1)
+    }
+
+    @Test
+    fun findHelloBy() {
+        val member1 = Member.createMember("member1", 10)
+        val member2 = Member.createMember("member1", 20)
+        memberRepository.save(member1)
+        memberRepository.save(member2)
+
+        // 전체 조회와 같다.
+        val result = memberRepository.findHelloBy()
+        assertThat(result.size).isEqualTo(2)
+    }
+
+    @Test
+    fun testNamedQuery() {
+        val member1 = Member.createMember("member1", 10)
+        val member2 = Member.createMember("member2", 20)
+        memberRepository.save(member1)
+        memberRepository.save(member2)
+
+        val result = memberRepository.findByUsername("member1")
+        assertThat(result[0].username).isEqualTo("member1")
+        assertThat(result[0].age).isEqualTo(10)
+        assertThat(result.size).isEqualTo(1)
+    }
+
+    @Test
+    fun testQuery() {
+        val member1 = Member.createMember("member1", 10)
+        val member2 = Member.createMember("member2", 20)
+        memberRepository.save(member1)
+        memberRepository.save(member2)
+
+        val result = memberRepository.findUser("member1", 10)
+        assertThat(result[0].username).isEqualTo("member1")
+        assertThat(result[0].age).isEqualTo(10)
+        assertThat(result.size).isEqualTo(1)
+    }
+
+    @Test
+    fun findUsernameList() {
+        val member1 = Member.createMember("member1", 10)
+        val member2 = Member.createMember("member2", 20)
+        memberRepository.save(member1)
+        memberRepository.save(member2)
+
+        val result = memberRepository.findUsernameList()
+        result.forEach {
+            println("name: $it")
+        }
+    }
+
+    @Test
+    fun findMemberDto() {
+        val team = Team.createTeam("teamA")
+        teamRepository.save(team)
+        val member1 = Member.createMember("member1", 10).apply {
+            this.changeTeam(team)
+        }
+        memberRepository.save(member1)
+
+        val result = memberRepository.findMemberDto()
+        result.forEach {
+            println("dto = $it")
+        }
+    }
+
+    @Test
+    fun findByNames() {
+        val member1 = Member.createMember("member1", 10)
+        val member2 = Member.createMember("member2", 20)
+        memberRepository.save(member1)
+        memberRepository.save(member2)
+
+        val result = memberRepository.findByNames(listOf("member1", "member2"))
+        result.forEach {
+            println("name: $it")
+        }
+    }
+
+    @Test
+    fun returnType() {
+        val member1 = Member.createMember("member1", 10)
+        val member2 = Member.createMember("member2", 20)
+        val member3 = Member.createMember("member2", 30)
+        memberRepository.save(member1)
+        memberRepository.save(member2)
+        memberRepository.save(member3)
+
+        val result1 = memberRepository.findListByUsername("member1")
+        val resultNone = memberRepository.findListByUsername("none")
+        assertThat(resultNone.size).isEqualTo(0) // 없으면 Empty List를 반환
+
+        val result2 = memberRepository.findMemberByUsername("member1")
+        val result3 = memberRepository.findOptionalByUsername("member1")
+
+        // NonUniqueResultException > JPA exception
+        // IncorrectResultSizeDataAccessException > springframework exception으로 변환
+        assertThrows<IncorrectResultSizeDataAccessException> {
+            memberRepository.findMemberByUsername("member2")
+        }
     }
 }
