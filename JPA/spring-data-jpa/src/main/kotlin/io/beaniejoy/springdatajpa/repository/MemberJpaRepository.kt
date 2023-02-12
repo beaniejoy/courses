@@ -49,7 +49,7 @@ class MemberJpaRepository(
     }
 
     // paging 처리
-    fun findByPage(age: Int, offset: Int, limit: Int): List<Member> {
+    fun findByAge(age: Int, offset: Int, limit: Int): List<Member> {
         return em.createQuery("select m from Member m where m.age = :age order by m.username desc", Member::class.java)
             .setParameter("age", age)
             .setFirstResult(offset)

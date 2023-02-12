@@ -1,14 +1,17 @@
 package io.beaniejoy.springdatajpa.repository
 
+import io.beaniejoy.springdatajpa.dto.MemberDto
 import io.beaniejoy.springdatajpa.entity.Member
 import io.beaniejoy.springdatajpa.entity.Team
-import jakarta.persistence.NonUniqueResultException
 import org.assertj.core.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.dao.IncorrectResultSizeDataAccessException
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.test.annotation.Rollback
 import org.springframework.transaction.annotation.Transactional
@@ -177,5 +180,48 @@ class MemberRepositoryTest {
         assertThrows<IncorrectResultSizeDataAccessException> {
             memberRepository.findMemberByUsername("member2")
         }
+    }
+
+    @Test
+    fun testPaging() {
+        memberRepository.save(Member.createMember("member1", 10))
+        memberRepository.save(Member.createMember("member2", 10))
+        memberRepository.save(Member.createMember("member3", 10))
+        memberRepository.save(Member.createMember("member4", 10))
+        memberRepository.save(Member.createMember("member5", 10))
+
+        val age = 10
+
+        val pageRequest = PageRequest.of(0, 3, Sort.by(Sort.Direction.DESC, "username"))
+
+        val members = memberRepository.findByAge(age, pageRequest)
+        assertThat(members.content.size).isEqualTo(3)
+        assertThat(members.totalElements).isEqualTo(5)
+        assertThat(members.number).isEqualTo(0)
+        assertThat(members.totalPages).isEqualTo(2)
+        assertThat(members.isFirst).isTrue
+        assertThat(members.hasNext()).isTrue
+
+        members.content.forEach {
+            println("member = ${it.id}, ${it.username}")
+        }
+
+        // Page 내의 dto로 변환가능
+        val memberDtos: Page<MemberDto> = members.map { MemberDto(it.id, it.username, it.team?.name) }
+
+        // Page > Slice(count 쿼리 X)
+        // size를 3개로 했는데 slice로 하면 +1해서 4가 날라감 (더보기 기능에 대해서 사용)
+        val membersSlice = memberRepository.findWithSliceByAge(age, pageRequest)
+        assertThat(membersSlice.content.size).isEqualTo(3)
+        assertThat(membersSlice.number).isEqualTo(0)
+        assertThat(membersSlice.isFirst).isTrue
+        assertThat(membersSlice.hasNext()).isTrue
+
+        // limit 0, 3은 적용 하되 딱 3개만 뽑고 싶은 경우(paging 기능 상관 없이)
+        val membersList = memberRepository.findWithListByAge(age, pageRequest)
+        assertThat(membersList.size).isEqualTo(3)
+
+        // countQuery 사용(원장 쿼리와 count 쿼리를 분리해야 하는 경우 - join 있을 때)
+        memberRepository.findWithCountQueryByAge(age, pageRequest)
     }
 }

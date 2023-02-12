@@ -2,6 +2,9 @@ package io.beaniejoy.springdatajpa.repository
 
 import io.beaniejoy.springdatajpa.dto.MemberDto
 import io.beaniejoy.springdatajpa.entity.Member
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Slice
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
@@ -34,4 +37,11 @@ interface MemberRepository: JpaRepository<Member, Long> {
     fun findListByUsername(username: String): List<Member> // 컬렉션
     fun findMemberByUsername(username: String): Member? // 단건
     fun findOptionalByUsername(username: String): Optional<Member> // Optional wrapping
+
+    // paging
+    fun findByAge(age: Int, pageable: Pageable): Page<Member>
+    fun findWithSliceByAge(age: Int, pageable: Pageable): Slice<Member>
+    fun findWithListByAge(age: Int, pageable: Pageable): List<Member>
+    @Query(value = "select m from Member m left join m.team t", countQuery = "select count(m) from Member m")
+    fun findWithCountQueryByAge(age: Int, pageable: Pageable): List<Member>
 }

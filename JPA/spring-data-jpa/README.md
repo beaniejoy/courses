@@ -105,3 +105,49 @@ fun findOptionalByUsername(username: String): Optional<Member> // Optional wrapp
 
 > spring framework에서는 하부 repository 기술에 의존하는 것이 아닌 spring 추상화된 interface로 변환  
 > 그래서 MongoDB, JPA, Redis 등의 하부 repository 기술이 변경되어도 코드에서는 변경지점이 없게 됨
+
+### Spring Data JPA Paging & Sorting
+- JPQL 처리
+```kotlin
+fun findByAge(age: Int, offset: Int, limit: Int): List<Member> {
+    return em.createQuery("select m from Member m where m.age = :age order by m.username desc", Member::class.java)
+        .setParameter("age", age)
+        .setFirstResult(offset)
+        .setMaxResults(limit)
+        .resultList
+}
+
+fun totalCount(age: Int): Long {
+    return em.createQuery("select count(m) from Member m where m.age = :age", Long::class.java)
+        .setParameter("age", age)
+        .singleResult
+}
+```
+`setFirstResult`, `setMaxResults`를 이용해 offset, limit 개수를 설정  
+여기서 totalCount를 조회하기 위한 count query 별도 구성해야 한다.(번거로움)
+
+- Spring Data JPA 처리
+```kotlin
+// MemberRepository
+fun findByAge(age: Int, pageable: Pageable): Page<Member>
+fun findWithSliceByAge(age: Int, pageable: Pageable): Slice<Member>
+fun findWithListByAge(age: Int, pageable: Pageable): List<Member>
+@Query(value = "select m from Member m left join m.team t", countQuery = "select count(m) from Member m")
+fun findWithCountQueryByAge(age: Int, pageable: Pageable): List<Member>
+```
+Spring Data JPA는 `Pageable` interface와 `Page`, `Slice` 인터페이스를 제공해준다.
+
+```kotlin
+val members = memberRepository.findByAge(age, pageRequest)
+assertThat(members.content.size).isEqualTo(3)
+assertThat(members.totalElements).isEqualTo(5)
+assertThat(members.number).isEqualTo(0)
+assertThat(members.totalPages).isEqualTo(2)
+assertThat(members.isFirst).isTrue
+assertThat(members.hasNext()).isTrue
+```
+여러가지 paging 관련 API 제공  
+`Slice`로 반환하면 limit 크기를 설정한 것보다 +1만큼 조회(더보기 기능 관련해서 적용할 수 있음)  
+`Slice`로 하면 count query는 날라가지 않고 본 쿼리만 날라가게 된다.(성능 최적화)  
+`List`로 반환할 수 있는데 이 때에도 count query X (limit 개수만큼 잘라서 조회하고 싶을 때)  
+

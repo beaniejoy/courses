@@ -96,10 +96,10 @@ class MemberJpaRepositoryTest {
         memberJpaRepository.save(Member.createMember("member5", 10))
 
         val age = 10
-        val offset = 0
+        val offset = 1
         val limit = 3
 
-        val members = memberJpaRepository.findByPage(age, offset, limit)
+        val members = memberJpaRepository.findByAge(age, offset, limit)
         val totalCount = memberJpaRepository.totalCount(10)
 
         //then
