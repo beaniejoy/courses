@@ -151,3 +151,29 @@ assertThat(members.hasNext()).isTrue
 `Slice`로 하면 count query는 날라가지 않고 본 쿼리만 날라가게 된다.(성능 최적화)  
 `List`로 반환할 수 있는데 이 때에도 count query X (limit 개수만큼 잘라서 조회하고 싶을 때)  
 
+### 벌크성 수정 쿼리
+
+- 주의해야할 점
+```kotlin
+val resultCount = memberRepository.bulkAgePlus(20)
+
+val result = memberRepository.findByUsername("member5")
+val member5 = result[0]
+println("member5 = $member5") // 31로 update 처리 안됨
+```
+벌크 연산은 DB에 바로 쿼리를 실행해버리기 때문에 JPA 영속성 컨텍스트를 거치지 않는다.  
+그래서 member5 조회했을 때 update 전 값이 나오게 된다.
+```kotlin
+em.flush()
+em.clear()
+
+// 위 대신에
+@Modifying(clearAutomatically = true)
+@Query("update ...")
+fun bulkAgePlus(@Param("age") age: Int): Int
+```
+벌크성 연산 직후에 entity manager를 비워줘야 한다.  
+
+- save와 관계
+**JPQL update** 쿼리는 그 이전에 JPA repository save 처리한 것이 있다면 PC에 있는 캐시된 내용을 갖고  
+먼저 db insert 진행한 다음에 update 처리를 하게 된다. (JPA 변경감지와 다르다.)

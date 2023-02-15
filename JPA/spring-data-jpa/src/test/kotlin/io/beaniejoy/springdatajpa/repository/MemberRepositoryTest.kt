@@ -3,6 +3,7 @@ package io.beaniejoy.springdatajpa.repository
 import io.beaniejoy.springdatajpa.dto.MemberDto
 import io.beaniejoy.springdatajpa.entity.Member
 import io.beaniejoy.springdatajpa.entity.Team
+import jakarta.persistence.EntityManager
 import org.assertj.core.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -25,6 +26,8 @@ class MemberRepositoryTest {
     lateinit var memberRepository: MemberRepository
     @Autowired
     lateinit var teamRepository: TeamRepository
+    @Autowired
+    lateinit var em: EntityManager
 
     @Test
     fun testMember() {
@@ -223,5 +226,31 @@ class MemberRepositoryTest {
 
         // countQuery 사용(원장 쿼리와 count 쿼리를 분리해야 하는 경우 - join 있을 때)
         memberRepository.findWithCountQueryByAge(age, pageRequest)
+    }
+
+    @Test
+    fun bulkUpdate() {
+        // given
+        memberRepository.save(Member.createMember("member1", 10))
+        memberRepository.save(Member.createMember("member2", 15))
+        memberRepository.save(Member.createMember("member3", 21))
+        memberRepository.save(Member.createMember("member4", 28))
+        memberRepository.save(Member.createMember("member5", 31))
+
+        println("========== save ============")
+        // when
+        val resultCount = memberRepository.bulkAgePlus(20)
+//        em.flush()
+//        em.clear()
+        println("========== bulkUpdate ============")
+
+        val result = memberRepository.findByUsername("member5")
+
+        println("========== findByUsername ============")
+        val member5 = result[0]
+        println("member5 = ${member5.age}") // 31로 update 처리 안됨
+
+        // then
+        assertThat(resultCount).isEqualTo(3)
     }
 }

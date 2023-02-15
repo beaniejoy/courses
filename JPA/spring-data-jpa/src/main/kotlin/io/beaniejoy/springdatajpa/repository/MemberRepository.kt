@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Slice
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import java.util.*
@@ -44,4 +45,10 @@ interface MemberRepository: JpaRepository<Member, Long> {
     fun findWithListByAge(age: Int, pageable: Pageable): List<Member>
     @Query(value = "select m from Member m left join m.team t", countQuery = "select count(m) from Member m")
     fun findWithCountQueryByAge(age: Int, pageable: Pageable): List<Member>
+
+    // JPQL update 쿼리 실행할 때 @Modifying 꼭 있어야한다.
+    // 일종의 'executeUpdate()'와 같은 역할
+    @Modifying(clearAutomatically = true)
+    @Query("update Member m set m.age = m.age + 1 where m.age >= :age")
+    fun bulkAgePlus(@Param("age") age: Int): Int
 }
