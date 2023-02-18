@@ -253,4 +253,45 @@ class MemberRepositoryTest {
         // then
         assertThat(resultCount).isEqualTo(3)
     }
+
+    @Test
+    fun findMemberLazy() {
+        // given
+        // member1 > teamA
+        // member2 > teamB
+
+        val teamA = Team.createTeam("teamA")
+        val teamB = Team.createTeam("teamB")
+        teamRepository.save(teamA)
+        teamRepository.save(teamB)
+
+        val member1 = Member.createMember("member1", 10).apply {
+            this.changeTeam(teamA)
+        }
+        val member2 = Member.createMember("member2", 10).apply {
+            this.changeTeam(teamB)
+        }
+        memberRepository.save(member1)
+        memberRepository.save(member2)
+
+        em.flush()
+        em.clear()
+
+        // N+1 문제 발생 (fetch lazy mode) > member.team.name 할 때 team 조회 쿼리 발생
+        // m.team > Team$HibernateProxy$... (proxy)
+//        val members = memberRepository.findAll()
+
+        // fetch join으로 N+1 해결
+        // m.team > springdatajpa.entity.Team
+//        val members = memberRepository.findMemberFetchJoin()
+
+        // EntityGraph 적용된 findAll
+        val members = memberRepository.findEntityGraphByUsername("member1")
+
+        members.forEach {
+            println("member = ${it.username}")
+            println("member.teamClass = ${it.team!!.javaClass}") //
+            println("member.team = ${it.team!!.name}")
+        }
+    }
 }

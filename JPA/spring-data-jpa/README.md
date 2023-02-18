@@ -172,8 +172,47 @@ em.clear()
 @Query("update ...")
 fun bulkAgePlus(@Param("age") age: Int): Int
 ```
-벌크성 연산 직후에 entity manager를 비워줘야 한다.  
+**벌크성 연산 직후에 entity manager를 비워줘야 한다.**  
+JDBC, MyBatis 이용한 변경 쿼리 적용도 마찬가지다.(clear 해줘야 한다.)
 
-- save와 관계
+- save와 관계  
 **JPQL update** 쿼리는 그 이전에 JPA repository save 처리한 것이 있다면 PC에 있는 캐시된 내용을 갖고  
 먼저 db insert 진행한 다음에 update 처리를 하게 된다. (JPA 변경감지와 다르다.)
+
+### @EntityGraph
+- member - team: lazy fetch 연결
+- N+1 문제 발생 가능
+```kotlin
+// fetch join 이용한 N+1 문제 해결
+@Query("select m from Member m left join fetch m.team")
+fun findMemberFetchJoin(): List<Member>
+```
+JPQL 이용한 fetch join으로 문제 해결 가능  
+하지만 매번 JPQL을 통해 fetch join 설정해야하는 번거로움 존재
+
+```kotlin
+// EntityGraph 이용한 N+1 문제 해결
+@EntityGraph(attributePaths = ["team"])
+override fun findAll(): List<Member>
+```
+이런 식으로 `@EntityGraph`를 이용해 fetch join 조회 가능  
+```kotlin
+@EntityGraph(attributePaths = ["team"])
+@Query("select m from Member m")
+fun findMemberEntityGraph(): List<Member>
+
+@EntityGraph(attributePaths = ["team"])
+fun findEntityGraphByUsername(@Param("username") username: String): List<Member> // find...ByUsername ...에 아무거나 상관없음
+```
+위와 같이 사용할 수 있음
+
+```kotlin
+// Member
+@NamedEntityGraph(name = "Member.all", attributeNodes = [NamedAttributeNode("team")])
+class Member protected constructor(
+    //...
+) { 
+  //... 
+}
+```
+`@NamedEntityGraph` 사용해서 미리 EntityGraph를 설정할 수 있다.

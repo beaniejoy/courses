@@ -5,6 +5,7 @@ import io.beaniejoy.springdatajpa.entity.Member
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Slice
+import org.springframework.data.jpa.repository.EntityGraph
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
@@ -51,4 +52,18 @@ interface MemberRepository: JpaRepository<Member, Long> {
     @Modifying(clearAutomatically = true)
     @Query("update Member m set m.age = m.age + 1 where m.age >= :age")
     fun bulkAgePlus(@Param("age") age: Int): Int
+
+    // fetch join 이용한 N+1 문제 해결
+    @Query("select m from Member m left join fetch m.team")
+    fun findMemberFetchJoin(): List<Member>
+    // EntityGraph 이용한 N+1 문제 해결
+    @EntityGraph(attributePaths = ["team"])
+    override fun findAll(): List<Member>
+    @EntityGraph(attributePaths = ["team"])
+    @Query("select m from Member m")
+    fun findMemberEntityGraph(): List<Member>
+
+//    @EntityGraph(attributePaths = ["team"])
+    @EntityGraph("Member.all") // NamedEntityGraph 적용
+    fun findEntityGraphByUsername(@Param("username") username: String): List<Member> // find...ByUsername ...에 아무거나 상관없음
 }
