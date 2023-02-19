@@ -227,3 +227,54 @@ val findMember = memberRepository.findByIdOrNull(member1.id)!!
 ```
 JPA find 하는 순간 영속성 컨텍스트에서 객체를 관리하게 되는 것임  
 만약 단순 조회용으로 하고 싶을 때 비효율 발생
+
+```kotlin
+// JPA hints
+@QueryHints(QueryHint(name = "org.hibernate.readOnly", value = "true")) // readOnly
+fun findReadOnlyByUsername(username: String): Member?
+```
+위와 같이하면 snapshot 기능을 사용하지 않게 되어버려 변경감지 적용되지 않는다.  
+단순 조회용으로 사용하고 싶을 때 사용 가능  
+하지만 요즘은 성능자체가 좋아져서 큰 성능 개선 효과는 보이지 않는다.
+
+<br>
+
+## :pushpin: 확장 기능
+
+### 사용자 정의 리포지토리 구현
+
+- 기존 JPA Repository에 custom한 method 적용하고 싶을 때
+- JDBC 기술 적용(JdbcTemplate) 따로 적용 가능
+- JPA entityManager 적용 가능
+- **QueryDSL 적용**
+
+```kotlin
+interface MemberRepositoryCustom {
+  fun findMemberCustom(): List<Member>
+}
+
+// MemberRepository
+interface MemberRepository: JpaRepository<Member, Long>, MemberRepositoryCustom {
+    //...
+}
+```
+Custom Repository interface 생성하고 기존 JPA Repository에 적용
+
+```kotlin
+class MemberRepositoryImpl(
+    private val em: EntityManager
+): MemberRepositoryCustom {
+    override fun findMemberCustom(): List<Member> {
+        return em.createQuery("select m from Member m", Member::class.java)
+            .resultList
+    }
+}
+```
+`MemberRepositoryCustom`의 구현체 적용  
+여기서 규칙이 기존 JPA Repository 이름에 `Impl`로 네이밍해야 한다. (`MemberRepository` + `Impl`)
+
+- 실무에서 주의점  
+
+화면에 맞춘 복잡한 쿼리들이 존재  
+**핵심 비즈니스 로직 쿼리와 화면에 맞춘 복잡한 쿼리에 대해서 repository를 두 부분으로 나눔**  
+(ex. 결제시스템에서 핵심 결제 비즈니스 쿼리(JPA)와 통계성 조회 쿼리(어드민, 리포트 등) 두 부분에 대해서 따로 repository 구성)

@@ -328,4 +328,11 @@ class MemberRepositoryTest {
         // when
         val result = memberRepository.findLockByUsername("member1") // readOnly
     }
+
+    @Test
+    fun callCustom() {
+        // custom repository method 사용
+        // MemberRepository > MemberRepositoryCustom (MemberRepositoryImpl 구현체 사용)
+        memberRepository.findMemberCustom()
+    }
 }

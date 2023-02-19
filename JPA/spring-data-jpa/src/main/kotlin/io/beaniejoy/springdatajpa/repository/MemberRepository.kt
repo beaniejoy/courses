@@ -16,7 +16,7 @@ import org.springframework.data.jpa.repository.QueryHints
 import org.springframework.data.repository.query.Param
 import java.util.*
 
-interface MemberRepository: JpaRepository<Member, Long> {
+interface MemberRepository: JpaRepository<Member, Long>, MemberRepositoryCustom {
     fun findByUsernameAndAgeGreaterThan(username: String, age: Int): List<Member>
 
     // 전체조회랑 같다.
