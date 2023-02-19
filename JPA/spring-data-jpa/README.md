@@ -216,3 +216,14 @@ class Member protected constructor(
 }
 ```
 `@NamedEntityGraph` 사용해서 미리 EntityGraph를 설정할 수 있다.
+
+### JPA hint & Lock
+
+변경감지(dirty checking)만으로 update query를 적용하기 위해 영속성 컨텍스트에서 두 개의 객체를 관리 해야 한다.  
+(변경 전 객체 내용, 변경 후 객체 내용)
+
+```kotlin
+val findMember = memberRepository.findByIdOrNull(member1.id)!!
+```
+JPA find 하는 순간 영속성 컨텍스트에서 객체를 관리하게 되는 것임  
+만약 단순 조회용으로 하고 싶을 때 비효율 발생

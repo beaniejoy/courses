@@ -294,4 +294,38 @@ class MemberRepositoryTest {
             println("member.team = ${it.team!!.name}")
         }
     }
+
+    @Test
+    fun queryHint() {
+        // given
+        val member1 = Member.createMember("member1", 10)
+        memberRepository.save(member1)
+
+        em.flush()
+        em.clear()
+
+        // when
+//        val findMember = memberRepository.findByIdOrNull(member1.id)!!
+        val findMember = memberRepository.findReadOnlyByUsername("member1")!! // readOnly
+        findMember.apply {
+            this.updateName("update member1")
+        }
+
+        // update query (dirty checking)
+        // readOnly hint 적용시 변경감지 체크 X (조회만을 위한 효율 극대화, snapshot 관리 X)
+        em.flush()
+    }
+
+    @Test
+    fun lock() {
+        // given
+        val member1 = Member.createMember("member1", 10)
+        memberRepository.save(member1)
+
+        em.flush()
+        em.clear()
+
+        // when
+        val result = memberRepository.findLockByUsername("member1") // readOnly
+    }
 }

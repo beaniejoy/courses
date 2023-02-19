@@ -2,13 +2,17 @@ package io.beaniejoy.springdatajpa.repository
 
 import io.beaniejoy.springdatajpa.dto.MemberDto
 import io.beaniejoy.springdatajpa.entity.Member
+import jakarta.persistence.LockModeType
+import jakarta.persistence.QueryHint
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Slice
 import org.springframework.data.jpa.repository.EntityGraph
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Lock
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
+import org.springframework.data.jpa.repository.QueryHints
 import org.springframework.data.repository.query.Param
 import java.util.*
 
@@ -66,4 +70,13 @@ interface MemberRepository: JpaRepository<Member, Long> {
 //    @EntityGraph(attributePaths = ["team"])
     @EntityGraph("Member.all") // NamedEntityGraph 적용
     fun findEntityGraphByUsername(@Param("username") username: String): List<Member> // find...ByUsername ...에 아무거나 상관없음
+
+    // JPA hints
+    @QueryHints(QueryHint(name = "org.hibernate.readOnly", value = "true")) // readOnly
+    fun findReadOnlyByUsername(username: String): Member?
+
+    // Lock
+    // select for update
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    fun findLockByUsername(username: String): List<Member>
 }

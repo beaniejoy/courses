@@ -37,4 +37,8 @@ class Member protected constructor(
         this.team = team
         team.members.add(this)
     }
+
+    fun updateName(username: String) {
+        this.username = username
+    }
 }
