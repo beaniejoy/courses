@@ -1,6 +1,7 @@
 package io.beaniejoy.springdatajpa.repository
 
 import io.beaniejoy.springdatajpa.dto.MemberDto
+import io.beaniejoy.springdatajpa.entity.BaseEntity
 import io.beaniejoy.springdatajpa.entity.Member
 import io.beaniejoy.springdatajpa.entity.Team
 import jakarta.persistence.EntityManager
@@ -334,5 +335,28 @@ class MemberRepositoryTest {
         // custom repository method 사용
         // MemberRepository > MemberRepositoryCustom (MemberRepositoryImpl 구현체 사용)
         memberRepository.findMemberCustom()
+    }
+
+    @Test
+    fun jpaEventBaseEntity() {
+        // given
+        val member = Member.createMember("member1", 10)
+        memberRepository.save(member) // @PrePersist
+
+        Thread.sleep(1000)
+        member.updateName("update member")
+
+        em.flush() // @PreUpdate
+        em.clear()
+
+        BaseEntity()
+        // when
+        val findMember = memberRepository.findByIdOrNull(member.id)!!
+
+        // then
+        println("findMember.createdDate = ${findMember.createdDate}")
+        println("findMember.updatedDate = ${findMember.lastModifiedDate}")
+        println("findMember.createdBy = ${findMember.createdBy}")
+        println("findMember.updatedBy = ${findMember.updatedBy}")
     }
 }

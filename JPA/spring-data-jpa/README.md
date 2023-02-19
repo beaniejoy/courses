@@ -278,3 +278,37 @@ class MemberRepositoryImpl(
 화면에 맞춘 복잡한 쿼리들이 존재  
 **핵심 비즈니스 로직 쿼리와 화면에 맞춘 복잡한 쿼리에 대해서 repository를 두 부분으로 나눔**  
 (ex. 결제시스템에서 핵심 결제 비즈니스 쿼리(JPA)와 통계성 조회 쿼리(어드민, 리포트 등) 두 부분에 대해서 따로 repository 구성)
+
+### Auditing
+- 표준 JPA 적용
+  - `@PrePersist`, `@PostPersist`, `@PreUpdate`, `@PostUpdate`
+
+```kotlin
+@PrePersist
+fun prePersist() {
+    val now = LocalDateTime.now()
+    createdDate = now
+    updatedDate = now
+}
+
+@PreUpdate
+fun preUpdate() {
+    updatedDate = LocalDateTime.now()
+}
+```
+- Spring Data JPA 적용
+
+```kotlin
+@EnableJpaAuditing
+```
+Config 파일이나 root application 파일에 auditing 어노테이션 적용  
+```kotlin
+@CreatedDate
+@Column(updatable = false)
+lateinit var createdDate: LocalDateTime
+    protected set
+
+@LastModifiedDate
+lateinit var lastModifiedDate: LocalDateTime
+    protected set
+```

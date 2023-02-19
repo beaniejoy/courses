@@ -11,7 +11,7 @@ import jakarta.persistence.*
 class Member protected constructor(
     username: String,
     age: Int
-){
+) : BaseEntity() {
     @Id
     @GeneratedValue
     val id: Long = 0L
