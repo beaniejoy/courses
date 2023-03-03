@@ -333,3 +333,9 @@ fun findMember2(@PathVariable("id") member: Member?): String {
 ```
 - 단순 조회용으로 사용해야한다.
   - Tx이 없는 상태로 사용되었기 때문에 변경감지 X
+
+### Paging
+
+```
+GET http://localhost:8080/members?page=1&size=10
+```

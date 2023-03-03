@@ -3,6 +3,8 @@ package io.beaniejoy.springdatajpa.controller
 import io.beaniejoy.springdatajpa.entity.Member
 import io.beaniejoy.springdatajpa.repository.MemberRepository
 import jakarta.annotation.PostConstruct
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -25,8 +27,15 @@ class MemberController(
         return member!!.username
     }
 
+    @GetMapping("/members")
+    fun list(pageable: Pageable): Page<Member> {
+        return memberRepository.findAll(pageable)
+    }
+
     @PostConstruct
     fun init() {
-        memberRepository.save(Member.createMember("userA", 10))
+        for (i in 1..100) {
+            memberRepository.save(Member.createMember("user$i", i))
+        }
     }
 }
