@@ -349,7 +349,6 @@ class MemberRepositoryTest {
         em.flush() // @PreUpdate
         em.clear()
 
-        BaseEntity()
         // when
         val findMember = memberRepository.findByIdOrNull(member.id)!!
 

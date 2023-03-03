@@ -7,6 +7,15 @@
 ```shell
 $ ./gradlew dependencies --configuration compileClasspath
 ```
+- 주의할 점
+  - spring boot 3.x 버전 업되면서 애플리케이션 실행단계에서 h2 database 관련 문제 발생
+```text
+Column "start_value" not found
+```
+우선 임시적으로 해결하기 위해 Entity `GeneratedValue` 전략을 `IDENTITY`로 설정
+```kotlin
+@GeneratedValue(strategy = GenerationType.IDENTITY)
+```
 
 <br>
 
@@ -312,3 +321,15 @@ lateinit var createdDate: LocalDateTime
 lateinit var lastModifiedDate: LocalDateTime
     protected set
 ```
+
+### Domain class Converter
+```kotlin
+// 도메인 클래스 컨버터
+// (Spring Data JPA가 알아서 Member 주입, 권장 X)
+@GetMapping("/members2/{id}")
+fun findMember2(@PathVariable("id") member: Member?): String {
+    return member!!.username
+}
+```
+- 단순 조회용으로 사용해야한다.
+  - Tx이 없는 상태로 사용되었기 때문에 변경감지 X

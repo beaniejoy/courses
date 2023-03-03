@@ -13,7 +13,7 @@ class Member protected constructor(
     age: Int
 ) : BaseEntity() {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0L
 
     var username: String = username

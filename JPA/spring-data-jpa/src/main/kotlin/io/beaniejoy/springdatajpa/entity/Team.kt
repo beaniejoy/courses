@@ -5,7 +5,7 @@ import jakarta.persistence.*
 @Entity
 class Team protected constructor(name: String) {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0L
 
     var name: String = name
