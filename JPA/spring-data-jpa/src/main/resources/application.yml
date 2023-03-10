@@ -15,6 +15,12 @@ spring:
 #        dialect: org.hibernate.dialect.H2Dialect
 #        default_batch_fetch_size: 100 # batch size 설정
 #    open-in-view: false
+  data:
+    web:
+      pageable:
+        default-page-size: 10
+        max-page-size: 2000
+#        one-indexed-parameters: true
 
 logging:
   level:

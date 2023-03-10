@@ -1,11 +1,14 @@
 package io.beaniejoy.springdatajpa.controller
 
+import io.beaniejoy.springdatajpa.dto.MemberDto
 import io.beaniejoy.springdatajpa.entity.Member
 import io.beaniejoy.springdatajpa.repository.MemberRepository
 import jakarta.annotation.PostConstruct
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.data.web.PageableDefault
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RestController
@@ -28,8 +31,8 @@ class MemberController(
     }
 
     @GetMapping("/members")
-    fun list(pageable: Pageable): Page<Member> {
-        return memberRepository.findAll(pageable)
+    fun list(@PageableDefault(page = 1, size = 5) pageable: Pageable, @Qualifier("member") memberPageable: Pageable): Page<MemberDto> {
+        return memberRepository.findAll(pageable).map { MemberDto(id = it.id, username = it.username, it.team?.name) }
     }
 
     @PostConstruct

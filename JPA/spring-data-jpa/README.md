@@ -338,4 +338,35 @@ fun findMember2(@PathVariable("id") member: Member?): String {
 
 ```
 GET http://localhost:8080/members?page=1&size=10
+GET http://localhost:8080/members?size=10&sort=id,desc&sort=username
 ```
+- pageable 기본 설정 변경 방법  
+global 설정 방법
+```yaml
+spring:
+  data:
+    web:
+      pageable:
+        default-page-size: 10
+        max-page-size: 2000
+```
+어노테이션 방식
+```kotlin
+@PageableDefault(page = 1, size = 5) pageable: Pageable
+```
+
+```kotlin
+@Qualifier("member") memberPageable: Pageable
+```
+`/members/member_page=0&order_page=5` 접두사로 구분 가능(`{접두사명}_xxx`)
+
+- page를 1부터 시작할 때
+```yaml
+spring:
+  data:
+    web:
+      pageable:
+        one-indexed-parameters: true
+```
+그런데 기본값인 0으로 하는 것이 좋다.  
+(왜냐하면 page 결과 내용은 0을 기준으로 하고 있어서 page=1 시작하는 것과 차이발생)
