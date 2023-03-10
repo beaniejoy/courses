@@ -370,3 +370,31 @@ spring:
 ```
 그런데 기본값인 0으로 하는 것이 좋다.  
 (왜냐하면 page 결과 내용은 0을 기준으로 하고 있어서 page=1 시작하는 것과 차이발생)
+
+<br>
+
+## :pushpin: 스프링 데이터 JPA 분석
+
+### 스프링 데이터 JPA 구현체 분석
+- SimpleJPARepository
+- 특징
+  - `@Repository` 적용
+    - Spring Bean으로 관리됨
+    - JPA(혹은 JDBC) 예외를 스프링이 추상화한 예외로 변환
+  - `@Transactional` 적용
+    - JPA의 모든 변경은 트랜잭션 안에서 동작
+    - 서비스 계층에서 트랜잭션 안걸어도 repsitory단에서 적용해준다.
+  - `@Transactional(readOnly = true)`
+    - tx commit시 발생하는 flush를 하지 않는다.
+    - flush가 일어나지 않기 때문에 더티 체킹 발생 X(약간의 성능 개선)
+  - `save` 메소드
+    - 새로운 entity > persist
+    - 새로운 entity X > merge
+    - 되도록 merge를 사용하지 말자(merge는 비영속 상태 > 영속 상태로 만들 때 사용, 데이터 update시 변경 감지를 사용하자.)
+
+### 새로운 Entity 구별하는 방법
+- Entity의 `@Id` 식별자로 구분
+  - 식별자가 객체인 경우: null
+  - 식별자가 기본 타입인 경우: 0
+- 데이터 update시 변경감지 사용하는 것이 좋고, 생성시 persist를 사용하는 것이 좋다.
+- merge는 모든 데이터값들을 entity에 갈아끼우는 것이기에 리스크가 있다.
