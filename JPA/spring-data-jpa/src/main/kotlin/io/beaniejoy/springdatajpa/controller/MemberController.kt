@@ -35,7 +35,7 @@ class MemberController(
         return memberRepository.findAll(pageable).map { MemberDto(id = it.id, username = it.username, it.team?.name) }
     }
 
-    @PostConstruct
+//    @PostConstruct
     fun init() {
         for (i in 1..100) {
             memberRepository.save(Member.createMember("user$i", i))

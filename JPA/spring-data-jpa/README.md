@@ -398,3 +398,35 @@ spring:
   - 식별자가 기본 타입인 경우: 0
 - 데이터 update시 변경감지 사용하는 것이 좋고, 생성시 persist를 사용하는 것이 좋다.
 - merge는 모든 데이터값들을 entity에 갈아끼우는 것이기에 리스크가 있다.
+
+```kotlin
+@Test
+fun save() {
+    itemRepository.save(Item("A"))
+}
+```
+id 값을 직접 지정하는 경우 JpaRepository save 사용하면 merge를 사용하게 된다.  
+PC에 "A" 식별자로 된 entity가 있는지 보고 없으면 DB에서 **select** 먼저 수행  
+DB에도 없으면 **insert**를 수행하게 된다.   
+(merge를 사용하지 않는 것이 좋다.)
+
+```kotlin
+@Entity
+@EntityListeners(AuditingEntityListener::class)
+class Item constructor(
+    id: String?
+): Persistable<String> {
+  @CreatedDate
+  var createdDate: LocalDateTime? = null
+    protected set
+  
+  // save 할 때 persist, merge 기준 설정
+  override fun isNew(): Boolean {
+    return createdDate == null
+  }
+}
+```
+`@Id`에 @GeneratedValue 없이 식별자 직접 할당해서 생성하는 방식이라면 다른 방식으로 개발해야 한다.  
+`Persistable` 구현 > (`getId`, `isNew` 메소드 구현)  
+overriding한 isNew 메소드를 기준으로 save시 merge, persist 여부 체크  
+(JPA Auditing 기능을 통한 createdDate를 활용하면 된다. **createdDate는 persist하기 작전에 생성되기 때문에 null 여부로 persist, merge 판단 가능**)
