@@ -1,7 +1,6 @@
 package io.beaniejoy.springdatajpa.repository
 
 import io.beaniejoy.springdatajpa.dto.MemberDto
-import io.beaniejoy.springdatajpa.entity.BaseEntity
 import io.beaniejoy.springdatajpa.entity.Member
 import io.beaniejoy.springdatajpa.entity.Team
 import jakarta.persistence.EntityManager
@@ -11,6 +10,8 @@ import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.dao.IncorrectResultSizeDataAccessException
+import org.springframework.data.domain.Example
+import org.springframework.data.domain.ExampleMatcher
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
@@ -357,5 +358,109 @@ class MemberRepositoryTest {
         println("findMember.updatedDate = ${findMember.lastModifiedDate}")
         println("findMember.createdBy = ${findMember.createdBy}")
         println("findMember.updatedBy = ${findMember.updatedBy}")
+    }
+
+    @Test
+    fun specBasic() {
+        // given
+        val team = Team.createTeam("teamA")
+        em.persist(team)
+
+        val m1 = Member.createMember("m1", 0).apply { this.changeTeam(team) }
+        val m2 = Member.createMember("m2", 0).apply { this.changeTeam(team) }
+        em.persist(m1)
+        em.persist(m2)
+
+        em.flush()
+        em.clear()
+
+        // when
+        val spec = MemberSpec.username("m1")
+            .and(MemberSpec.teamName("teamA"))
+        val result = memberRepository.findAll(spec)
+
+        assertThat(result.size).isEqualTo(1)
+    }
+
+    @Test
+    fun queryByExample() {
+        // given
+        val teamA = Team.createTeam("teamA")
+        em.persist(teamA)
+
+        val m1 = Member.createMember("m1", 0).apply { this.changeTeam(teamA) }
+        val m2 = Member.createMember("m2", 0).apply { this.changeTeam(teamA) }
+        em.persist(m1)
+        em.persist(m2)
+
+        em.flush()
+        em.clear()
+
+        // when
+        // Probe
+        val member = Member.createMember("m1", 0)
+        val team = Team.createTeam("teamA")
+        member.changeTeam(team)
+
+        val matcher = ExampleMatcher.matching().withIgnorePaths("age", "id", "team.id")
+        val example = Example.of(member, matcher)
+
+        val result = memberRepository.findAll(example)
+
+        assertThat(result[0].username).isEqualTo("m1")
+    }
+
+    @Test
+    fun projections() {
+        // given
+        val teamA = Team.createTeam("teamA")
+        em.persist(teamA)
+
+        val m1 = Member.createMember("m1", 0).apply { this.changeTeam(teamA) }
+        val m2 = Member.createMember("m2", 0).apply { this.changeTeam(teamA) }
+        em.persist(m1)
+        em.persist(m2)
+
+        em.flush()
+        em.clear()
+
+        // when
+//        val result = memberRepository.findProjectionsByUsername("m1")
+//        val result = memberRepository.findProjectionsDtoByUsername("m1")    // DTO로 조회
+//        val result = memberRepository.findProjectionsDtoWithClassTypeByUsername("m1", UsernameOnlyDto::class.java)    // DTO with class type으로 조회
+
+        // 중첩된 내용의 경우 (Member > Team 조회) 최적화가 안된다. (Team의 name만 가져오려고 해도 Team entity 전체 내용을 projection하게 된다.)
+        val result = memberRepository.findProjectionsDtoWithClassTypeByUsername("m1", NestedClosedProjections::class.java)    // DTO with class type으로 조회
+
+        result.forEach {
+            println("### projection class ${it.javaClass}") // proxy 주입
+            println("usernameOnly = $it")
+            println("username ${it.getUsername()}")
+//            println("username ${it.username}")
+        }
+    }
+
+    @Test
+    fun nativeQuery() {
+        // given
+        val teamA = Team.createTeam("teamA")
+        em.persist(teamA)
+
+        val m1 = Member.createMember("m1", 0).apply { this.changeTeam(teamA) }
+        val m2 = Member.createMember("m2", 0).apply { this.changeTeam(teamA) }
+        em.persist(m1)
+        em.persist(m2)
+
+        em.flush()
+        em.clear()
+
+//        val result = memberRepository.findByNativeQuery("m1")
+        val result = memberRepository.findByNativeProjection(PageRequest.of(0, 10))
+//        println("### result ${result!!.username }")
+        result.content.forEach {
+            println("memberProjection = ${it.getUsername()}")
+            println("memberProjection = ${it.getTeamName()}")
+        }
+        println("### result ${result}")
     }
 }

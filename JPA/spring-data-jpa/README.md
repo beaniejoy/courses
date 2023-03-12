@@ -430,3 +430,48 @@ class Item constructor(
 `Persistable` 구현 > (`getId`, `isNew` 메소드 구현)  
 overriding한 isNew 메소드를 기준으로 save시 merge, persist 여부 체크  
 (JPA Auditing 기능을 통한 createdDate를 활용하면 된다. **createdDate는 persist하기 작전에 생성되기 때문에 null 여부로 persist, merge 판단 가능**)
+
+<br>
+
+## :pushpin: 나머지 기능들
+
+### Specification
+- 동적 쿼리에는 Specification 말고 QueryDSL 사용하자!
+
+### Query By Example
+- inner join만 가능, outer join은 불가능
+- 역시 QueryDSL을 사용하자
+
+### Projections
+- 엔티티 대신에 DTO를 편리하게 조회할 때 사용
+- 전체 엔티티가 아니라 회원 이름만 조회하고 싶을 때
+```kotlin
+// UsernameOnly interface (getUsername())
+fun findProjectionsByUsername(@Param("username") username: String): List<UsernameOnly>
+```
+```kotlin
+interface UsernameOnly {
+  @Value("#{target.username + ' ' + target.age}") // open projection
+  fun getUsername(): String
+}
+```
+- open projection: SpEL 사용해서 원하는 방식대로 가져올 수 있다.
+  - 이 때는 projection을 entity 전체 대상으로 다 가져온다.
+- closed projection: 인터페이스에 getter로 지정한 내용에 대해서만 가져온다. 
+  - `select m.username from Member m`
+  - UsernameOnly에 proxy 주입해서 username만 가져온다.
+- projection 대상이 Root entity 경우 JPQL SELECT 최적화 가능
+- ROOT가 아니면 LEFT OUTER JOIN 처리
+- 이 또한 쿼리가 조금만 더 복잡해지면 사용 불가(QueryDSL 사용하자) 
+
+### Native Query
+
+```kotlin
+@Query(
+    value = "select m.id, m.username, t.name as teamName from member m left join team t",
+    countQuery = "select count(*) from member",
+    nativeQuery = true
+)
+fun findByNativeProjection(pageable: Pageable): Page<MemberProjection>
+```
+Projections + Native Query 혼합 활용 가능

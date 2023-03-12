@@ -9,14 +9,16 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Slice
 import org.springframework.data.jpa.repository.EntityGraph
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor
 import org.springframework.data.jpa.repository.Lock
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.jpa.repository.QueryHints
 import org.springframework.data.repository.query.Param
 import java.util.*
+import kotlin.reflect.KClass
 
-interface MemberRepository: JpaRepository<Member, Long>, MemberRepositoryCustom {
+interface MemberRepository: JpaRepository<Member, Long>, MemberRepositoryCustom, JpaSpecificationExecutor<Member> {
     fun findByUsernameAndAgeGreaterThan(username: String, age: Int): List<Member>
 
     // 전체조회랑 같다.
@@ -79,4 +81,20 @@ interface MemberRepository: JpaRepository<Member, Long>, MemberRepositoryCustom 
     // select for update
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     fun findLockByUsername(username: String): List<Member>
+
+    // Projections
+    fun findProjectionsByUsername(@Param("username") username: String): List<UsernameOnly>
+    fun findProjectionsDtoByUsername(@Param("username") username: String): List<UsernameOnlyDto>
+    fun <T> findProjectionsDtoWithClassTypeByUsername(@Param("username") username: String, type: Class<T>): List<T>
+
+    // Native Query
+    @Query(value = "select * from member where username = ?", nativeQuery = true)
+    fun findByNativeQuery(username: String): Member?
+
+    @Query(
+        value = "select m.id, m.username, t.name as teamName from member m left join team t",
+        countQuery = "select count(*) from member",
+        nativeQuery = true
+    )
+    fun findByNativeProjection(pageable: Pageable): Page<MemberProjection>
 }

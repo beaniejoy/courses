@@ -12,10 +12,10 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener
 class BaseEntity protected constructor() : BaseTimeEntity() {
     @CreatedBy
     @Column(updatable = false)
-    lateinit var createdBy: String
+    var createdBy: String? = null
         protected set
 
     @LastModifiedBy
-    lateinit var updatedBy: String
+    var updatedBy: String? = null
         protected set
 }
