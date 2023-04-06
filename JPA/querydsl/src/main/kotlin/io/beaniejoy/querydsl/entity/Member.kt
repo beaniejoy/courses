@@ -4,14 +4,14 @@ import jakarta.persistence.*
 
 @Entity
 class Member protected constructor(
-    username: String,
+    username: String?,
     age: Int
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0L
 
-    var username: String = username
+    var username: String? = username
         protected set
 
     var age: Int = age
@@ -23,7 +23,7 @@ class Member protected constructor(
         protected set
 
     companion object {
-        fun createMember(username: String, age: Int): Member {
+        fun createMember(username: String?, age: Int): Member {
             return Member(username = username, age = age)
         }
     }

@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:h2:tcp://localhost/~/querydsl
+    url: jdbc:h2:tcp://localhost/~/querydsl;MODE=MySQL
     username: sa
     password:
     driver-class-name: org.h2.Driver
@@ -12,6 +12,7 @@ spring:
       hibernate:
         format_sql: true
         use_sql_comments: true  # JPQL 쿼리를 볼 수 있다.
+        dialect: org.hibernate.dialect.MySQL8Dialect
 #        show_sql: true
 
 logging:

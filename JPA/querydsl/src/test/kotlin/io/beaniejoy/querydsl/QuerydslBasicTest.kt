@@ -11,9 +11,11 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.test.annotation.Commit
 
 @SpringBootTest
 @Transactional
+@Commit
 class QuerydslBasicTest {
     // 멀티스레드 환경에서도 동시성 이슈 없이 작동되도록 주입시켜줌
     // @Transactional 걸린 부분에 따라 처리 되도록 설계됨
@@ -99,12 +101,75 @@ class QuerydslBasicTest {
 
     @Test
     fun resultFetch() {
-        val list: List<Member> = queryFactory
+//        val list: List<Member> = queryFactory
+//            .selectFrom(member)
+//            .fetch()
+//
+//        val one: Member? = queryFactory
+//            .selectFrom(member)
+//            .fetchOne()
+//
+//        val fetchFirst = queryFactory
+//            .selectFrom(member)
+//            .fetchFirst() // .limit(1).fetchOne()
+//
+//        queryFactory
+//            .selectFrom(member)
+//            .fetchResults() // deprecated
+//
+//        queryFactory
+//            .selectFrom(member)
+//            .fetchCount() // deprecated
+
+        val fetchPaging = queryFactory
             .selectFrom(member)
+            .offset(0)
+            .limit(10)
             .fetch()
 
-        val one: Member? = queryFactory
+    }
+
+    /**
+     * 회원 정렬 순서
+     * 1. 회원 나이 내림차순 (desc)
+     * 2. 회원 이름 오름차순 (asc)
+     * 2번에서 이름이 없을시 맨 마지막에 출
+     */
+    @Test
+    fun sort() {
+        em.persist(Member.createMember(null, 100))
+        em.persist(Member.createMember("member5", 101))
+        em.persist(Member.createMember("member6", 101))
+        em.persist(Member.createMember("member7", 100))
+
+        val result = queryFactory
             .selectFrom(member)
+            .where(member.age.goe(100))
+            .orderBy(member.age.desc(), member.username.asc().nullsLast())
+            .fetch()
+
+        result.forEach {
+            println("Member: $it")
+        }
+    }
+
+    @Test
+    fun paging1() {
+        // paging
+        val result = queryFactory
+            .selectFrom(member)
+            .orderBy(member.username.desc())
+            .offset(1)
+            .limit(2)
+            .fetch()
+
+        // count query
+        val count = queryFactory
+            .select(member.count())
+            .from(member)
             .fetchOne()
+
+        assertThat(result.size).isEqualTo(2)
+        assertThat(count).isEqualTo(4)
     }
 }

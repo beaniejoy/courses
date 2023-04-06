@@ -37,6 +37,9 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
 
+    // p6spy
+    implementation("com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.0")
+
     // querydsl
     implementation("com.querydsl:querydsl-jpa:$querydslVersion:jakarta")
     kapt("com.querydsl:querydsl-apt:$querydslVersion:jakarta")
