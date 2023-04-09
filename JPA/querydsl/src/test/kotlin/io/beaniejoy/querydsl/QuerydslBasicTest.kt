@@ -1,8 +1,10 @@
 package io.beaniejoy.querydsl
 
+import com.querydsl.core.Tuple
 import com.querydsl.jpa.impl.JPAQueryFactory
 import io.beaniejoy.querydsl.entity.Member
 import io.beaniejoy.querydsl.entity.QMember.member
+import io.beaniejoy.querydsl.entity.QTeam.team
 import io.beaniejoy.querydsl.entity.Team
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
@@ -15,7 +17,6 @@ import org.springframework.test.annotation.Commit
 
 @SpringBootTest
 @Transactional
-@Commit
 class QuerydslBasicTest {
     // 멀티스레드 환경에서도 동시성 이슈 없이 작동되도록 주입시켜줌
     // @Transactional 걸린 부분에 따라 처리 되도록 설계됨
@@ -68,7 +69,7 @@ class QuerydslBasicTest {
             .where(member.username.eq("member1")) // 파라미터 바인딩
             .fetchOne()
 
-        assertThat(findMember?.username).isEqualTo("member1")
+        assertThat(findMember!!.username).isEqualTo("member1")
     }
 
     @Test
@@ -154,7 +155,7 @@ class QuerydslBasicTest {
     }
 
     @Test
-    fun paging1() {
+    fun paging() {
         // paging
         val result = queryFactory
             .selectFrom(member)
@@ -171,5 +172,93 @@ class QuerydslBasicTest {
 
         assertThat(result.size).isEqualTo(2)
         assertThat(count).isEqualTo(4)
+    }
+
+    @Test
+    fun aggregation() {
+        val result: List<Tuple> = queryFactory
+            .select(
+                member.count(),
+                member.age.sum(),
+                member.age.avg(),
+                member.age.max(),
+                member.age.min(),
+            )
+            .from(member)
+            .fetch()
+
+        // Querydsl의 Tuple은 많이 사용 X
+        val tuple = result[0]
+        assertThat(tuple.get(member.count())).isEqualTo(4)
+        assertThat(tuple.get(member.age.sum())).isEqualTo(60)
+        assertThat(tuple.get(member.age.avg())).isEqualTo(15.0) // double형
+        assertThat(tuple.get(member.age.max())).isEqualTo(20)
+        assertThat(tuple.get(member.age.min())).isEqualTo(10)
+    }
+
+    /**
+     * 팀의 이름과 각 팀의 평균 연령을 구해보자
+     */
+    @Test
+    fun group() {
+        val result = queryFactory
+            .select(team.name, member.age.avg())
+            .from(member)
+            .join(member.team, team)
+            .groupBy(team.name)
+            .fetch()
+
+        val teamA = result[0]
+        val teamB = result[1]
+
+        assertThat(teamA.get(team.name)).isEqualTo("teamA")
+        assertThat(teamA.get(member.age.avg())).isEqualTo(15.0)
+        assertThat(teamB.get(team.name)).isEqualTo("teamB")
+        assertThat(teamB.get(member.age.avg())).isEqualTo(15.0)
+    }
+
+    @Test
+    fun join() {
+        // join, innerJoin, rightJoin 다 가능
+        val result = queryFactory
+            .selectFrom(member)
+            .join(member.team, team)
+            .where(team.name.eq("teamA"))
+            .fetch()
+
+        assertThat(result)
+            .extracting("username")
+            .containsExactly("member1", "member2")
+    }
+
+    @Test
+    fun thetaJoin() {
+        em.persist(Member.createMember("teamA", 40))
+        em.persist(Member.createMember("teamB", 40))
+        em.persist(Member.createMember("teamC", 40))
+
+        // cartesian join (연관관계가 없는 두 테이블 모두 가져와서 조인함)
+        // join on 절 이용하면 외부 조인도 가능(최신 하이버네이트 버전부터)
+        val result = queryFactory
+            .select(member)
+            .from(member, team)
+            .where(member.username.eq(team.name))
+            .fetch()
+
+        assertThat(result)
+            .extracting("username")
+            .containsExactly("teamA", "teamB")
+    }
+
+    /**
+     * JPQL: SELECT m, t FROM MEMBER m LEFT JOIN m.team ON t.name = 'teamA'
+     */
+    @Test
+    fun joinOnFiltering() {
+        queryFactory
+            .select(member, team)
+            .from(member)
+            .leftJoin(member.team, team).on(team.name.eq("teamA"))
+            .fetch()
     }
 }
