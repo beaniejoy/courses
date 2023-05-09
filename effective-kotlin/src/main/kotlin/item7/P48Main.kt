@@ -46,6 +46,7 @@ class Failure(val throwable: Throwable) : Result<Nothing>()
 fun main() {
     val userTextSuccess = "{\"outfit\": {\"color\": \"blue\"}, \"email\": \"test@email.com\"}"
     val userTextFailure = "{\"aaa\": {\"color\": \"blue\"}, \"bbb\": \"test@email.com\"}"
+
     val person = userTextFailure.readObject<Person>()
     val email = when (person) {
         is Success -> person.result
