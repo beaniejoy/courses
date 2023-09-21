@@ -36,6 +36,7 @@ public class HelloConfiguration {
 
     // Step: Job의 실행 단위
     // Job : Step = 1 : N 관계
+    // Step >> Tasklet, Chunk 로 연동 가능
     @Bean
     public Step helloStep() {
         return stepBuilderFactory.get("helloStep")
