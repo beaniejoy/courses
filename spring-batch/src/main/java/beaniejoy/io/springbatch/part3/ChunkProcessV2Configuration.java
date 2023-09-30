@@ -6,12 +6,12 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
-import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.JobScope;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.item.ItemProcessor;
@@ -25,12 +25,12 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @Slf4j
-public class ChunkProcessConfiguration {
+public class ChunkProcessV2Configuration {
 
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
 
-    public ChunkProcessConfiguration(
+    public ChunkProcessV2Configuration(
         JobBuilderFactory jobBuilderFactory,
         StepBuilderFactory stepBuilderFactory
     ) {
@@ -39,17 +39,17 @@ public class ChunkProcessConfiguration {
     }
 
     @Bean
-    public Job chunkProcessingJob() {
-        return jobBuilderFactory.get("chunkProcessingJob")
+    public Job chunkProcessingV2Job() {
+        return jobBuilderFactory.get("chunkProcessingV2Job")
             .incrementer(new RunIdIncrementer())
-            .start(this.taskBaseStep())
-            .next(this.chunkBaseStep(null))
+            .start(this.taskBaseV2Step())
+            .next(this.chunkBaseV2Step(null))
             .build();
     }
 
     @Bean
     @JobScope
-    public Step chunkBaseStep(@Value("#{jobParameters[chunkSize]}") String value) {
+    public Step chunkBaseV2Step(@Value("#{jobParameters[chunkSize]}") String value) {
         int chunkSize = StringUtils.isNotEmpty(value) ? Integer.parseInt(value) : 10;
         return stepBuilderFactory.get("chunkBaseStep")
             .<String, String>chunk(chunkSize) // generic 으로 설정(<INPUT, OUTPUT>)
@@ -74,22 +74,19 @@ public class ChunkProcessConfiguration {
     }
 
     @Bean
-    public Step taskBaseStep() {
+    public Step taskBaseV2Step() {
         return stepBuilderFactory.get("taskBaseStep")
-            .tasklet(this.tasklet())
+            .tasklet(this.tasklet(null))
             .build();
     }
 
-    // tasklet으로 chunk 단위 실행하는 방법
-    public Tasklet tasklet() {
+    @Bean
+    @StepScope
+    public Tasklet tasklet(@Value("#{jobParameters[chunkSize]}") String value) {
         List<String> items = getItems();
         return (contribution, chunkContext) -> {
             StepExecution stepExecution = contribution.getStepExecution();
-            JobParameters jobParameters = stepExecution.getJobParameters();
 
-            // tasklet에서 사용할 수 있는 방법
-            // chunkSize를 유연하게 parameter로 받아서 처리
-            String value = jobParameters.getString("chunkSize", "10");
             int chunkSize = StringUtils.isNotEmpty(value) ? Integer.parseInt(value) : 10;
 
             // readCount를 통해 index를 지정
