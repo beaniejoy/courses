@@ -4,6 +4,7 @@ import beaniejoy.io.springbatch.part3.entity.Person;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import javax.sql.DataSource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -11,6 +12,8 @@ import org.springframework.batch.core.configuration.annotation.JobBuilderFactory
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.database.JdbcCursorItemReader;
+import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
@@ -25,19 +28,25 @@ public class ItemReaderConfiguration {
 
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
+    private final DataSource dataSource;
 
-    public ItemReaderConfiguration(JobBuilderFactory jobBuilderFactory,
-        StepBuilderFactory stepBuilderFactory) {
+    public ItemReaderConfiguration(
+        JobBuilderFactory jobBuilderFactory,
+        StepBuilderFactory stepBuilderFactory,
+        DataSource dataSource
+    ) {
         this.jobBuilderFactory = jobBuilderFactory;
         this.stepBuilderFactory = stepBuilderFactory;
+        this.dataSource = dataSource;
     }
 
     @Bean
     public Job itemReaderJob() throws Exception {
         return this.jobBuilderFactory.get("itemReaderJob")
             .incrementer(new RunIdIncrementer())
-            .start(this.customItemReaderStep())
-            .next(this.csvFileStep())
+            .start(customItemReaderStep())
+            .next(csvFileStep())
+            .next(jdbcStep())
             .build();
     }
 
@@ -52,7 +61,8 @@ public class ItemReaderConfiguration {
 
     private List<Person> getItems() {
         return IntStream.range(0, 10)
-            .mapToObj(index -> new Person(index + 1, "test name" + index, "test age", "test address"))
+            .mapToObj(
+                index -> new Person(index + 1, "test name" + index, "test age", "test address"))
             .collect(Collectors.toList());
     }
 
@@ -103,4 +113,35 @@ public class ItemReaderConfiguration {
         return itemReader;
     }
     // ####### [END] read csv file #######
+
+    // ####### [START] read jdbc(cursor) data #######
+    // jdbc cursor 기반의 itemReader (잘 사용 안하는 듯)
+    @Bean
+    public Step jdbcStep() throws Exception {
+        return stepBuilderFactory.get("jdbcStep")
+            .<Person, Person>chunk(10)
+            .reader(jdbcCursorItemReader())
+            .writer(itemWriter())
+            .build();
+    }
+
+    private JdbcCursorItemReader<Person> jdbcCursorItemReader() throws Exception {
+        JdbcCursorItemReader<Person> itemReader = new JdbcCursorItemReaderBuilder<Person>()
+            .name("jdbcCursorItemReader")
+            .dataSource(dataSource)
+            .sql("SELECT id, name, age, address FROM person")
+            .rowMapper((rs, rowNum) ->
+                new Person(
+                    rs.getInt(1),
+                    rs.getString(2),
+                    rs.getString(3),
+                    rs.getString(4)
+                )
+            )
+            .build();
+        itemReader.afterPropertiesSet();
+
+        return itemReader;
+    }
+    // ####### [END] read jdbc(cursor) data #######
 }

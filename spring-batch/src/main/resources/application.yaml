@@ -1,6 +1,13 @@
 spring:
   batch:
     job:
-      names: ${job.name:NONE} # ??? ?? ?? spring ???? ?? job? ???? ??? ??
+      names: ${job.name:NONE}
     jdbc:
-      initialize-schema: # spring batch metadata tables ?? ??? ??
+      initialize-schema: # spring batch metadata tables
+
+  datasource:
+    driver-class-name: org.h2.Driver
+  sql:
+    init:
+      mode: never # 최초 table 생성할 때만
+      data-locations: sql/person.sql
