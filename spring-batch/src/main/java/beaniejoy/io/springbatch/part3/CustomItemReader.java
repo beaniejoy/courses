@@ -6,6 +6,7 @@ import org.springframework.batch.item.NonTransientResourceException;
 import org.springframework.batch.item.ParseException;
 import org.springframework.batch.item.UnexpectedInputException;
 
+// spring batch에서 제공하는 ListItemReader와 동일하다.
 public class CustomItemReader<T> implements ItemReader<T> {
 
     private final List<T> items;
