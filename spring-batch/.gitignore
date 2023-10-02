@@ -1,3 +1,4 @@
+csv/
 .gradle
 build/
 !gradle/wrapper/gradle-wrapper.jar

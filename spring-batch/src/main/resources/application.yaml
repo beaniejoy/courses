@@ -19,7 +19,7 @@ spring:
         show-sql: false
   sql:
     init:
-      mode: always # 최초 table 생성할 때만
+      mode: embedded # 최초 table 생성할 때만
       data-locations: sql/person.sql
 
 logging:
