@@ -1,5 +1,6 @@
 package beaniejoy.io.springbatch.part3;
 
+import beaniejoy.io.springbatch.part3.SavePersonListener.SavePersonAnnotationJobExecutionListener;
 import beaniejoy.io.springbatch.part3.entity.Person;
 import javax.persistence.EntityManagerFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -47,6 +48,8 @@ public class SavePersonConfiguration {
         return jobBuilderFactory.get("savePersonJob")
             .incrementer(new RunIdIncrementer())
             .start(savePersonStep(null))
+            .listener(new SavePersonListener.SavePersonJobExecutionListener())
+            .listener(new SavePersonListener.SavePersonAnnotationJobExecutionListener())
             .build();
     }
 
@@ -63,6 +66,9 @@ public class SavePersonConfiguration {
                 )
             )
             .writer(itemWriter())
+            .listener(new SavePersonListener.SavePersonStepExecutionListener())
+//            .listener(new SavePersonListener.ItemReaderListener())
+            .listener(new SavePersonListener.ChunkListener())
             .build();
     }
 
