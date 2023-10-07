@@ -1,4 +1,4 @@
-package beaniejoy.io.springbatch.part3;
+package beaniejoy.io.springbatch.part3.batch;
 
 import java.util.List;
 import org.springframework.batch.item.ItemReader;

@@ -1,5 +1,7 @@
 package beaniejoy.io.springbatch.part3;
 
+import beaniejoy.io.springbatch.part3.batch.DuplicateValidationProcessor;
+import beaniejoy.io.springbatch.part3.batch.PersonValidationRetryProcessor;
 import beaniejoy.io.springbatch.part3.entity.Person;
 import beaniejoy.io.springbatch.part3.exception.NotFoundNameException;
 import beaniejoy.io.springbatch.part3.listener.SavePersonListener;
@@ -77,6 +79,8 @@ public class SavePersonConfiguration {
             .faultTolerant()
             .skip(NotFoundNameException.class)
             .skipLimit(2) // skip exception을 해당 횟수까지만 허용 (초과되면 step FAILED)
+//            .retry(NotFoundNameException.class)
+//            .retryLimit(3)
             .build();
     }
 
@@ -137,7 +141,7 @@ public class SavePersonConfiguration {
         };
 
         CompositeItemProcessor<Person, Person> itemProcessor = new CompositeItemProcessorBuilder<Person, Person>()
-            .delegates(validationProcessor, duplicateValidationProcessor)
+            .delegates(new PersonValidationRetryProcessor(), validationProcessor, duplicateValidationProcessor)
             .build();
 
         itemProcessor.afterPropertiesSet();

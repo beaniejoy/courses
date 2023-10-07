@@ -1,5 +1,6 @@
 package beaniejoy.io.springbatch.part3;
 
+import beaniejoy.io.springbatch.part3.batch.CustomItemReader;
 import beaniejoy.io.springbatch.part3.entity.Person;
 import java.util.List;
 import java.util.stream.Collectors;
