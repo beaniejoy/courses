@@ -1,4 +1,4 @@
-package beaniejoy.io.springbatch.part3;
+package beaniejoy.io.springbatch.part3.listener;
 
 import beaniejoy.io.springbatch.part3.entity.Person;
 import lombok.extern.slf4j.Slf4j;
