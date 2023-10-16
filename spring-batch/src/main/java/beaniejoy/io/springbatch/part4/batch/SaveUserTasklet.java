@@ -1,7 +1,7 @@
-package beaniejoy.io.springbatch.step4.batch;
+package beaniejoy.io.springbatch.part4.batch;
 
-import beaniejoy.io.springbatch.step4.entity.User;
-import beaniejoy.io.springbatch.step4.repository.UserRepository;
+import beaniejoy.io.springbatch.part4.entity.User;
+import beaniejoy.io.springbatch.part4.repository.UserRepository;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

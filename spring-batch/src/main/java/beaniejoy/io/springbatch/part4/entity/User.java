@@ -1,4 +1,4 @@
-package beaniejoy.io.springbatch.step4.entity;
+package beaniejoy.io.springbatch.part4.entity;
 
 import java.time.LocalDate;
 import javax.persistence.Entity;
@@ -33,5 +33,18 @@ public class User {
     private User(String username, int totalAmount) {
         this.username = username;
         this.totalAmount = totalAmount;
+    }
+
+    public boolean availableLevelUp() {
+        return Level.availableLevelUp(this.getLevel(), this.getTotalAmount());
+    }
+
+    public Level levelUp() {
+        Level nextLevel = Level.getNextLevel(this.getTotalAmount());
+
+        this.level = nextLevel;
+        this.updatedDate = LocalDate.now();
+
+        return nextLevel;
     }
 }

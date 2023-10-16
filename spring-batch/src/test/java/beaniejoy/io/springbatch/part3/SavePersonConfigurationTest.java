@@ -1,7 +1,8 @@
-package beaniejoy.io.springbatch;
+package beaniejoy.io.springbatch.part3;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import beaniejoy.io.springbatch.TestConfiguration;
 import beaniejoy.io.springbatch.part3.SavePersonConfiguration;
 import beaniejoy.io.springbatch.part3.repository.PersonRepository;
 import org.junit.jupiter.api.AfterEach;
