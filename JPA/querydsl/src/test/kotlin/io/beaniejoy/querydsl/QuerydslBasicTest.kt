@@ -7,6 +7,8 @@ import io.beaniejoy.querydsl.entity.QMember.member
 import io.beaniejoy.querydsl.entity.QTeam.team
 import io.beaniejoy.querydsl.entity.Team
 import jakarta.persistence.EntityManager
+import jakarta.persistence.EntityManagerFactory
+import jakarta.persistence.PersistenceUnit
 import jakarta.transaction.Transactional
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -25,6 +27,7 @@ class QuerydslBasicTest {
 
     lateinit var queryFactory: JPAQueryFactory
 
+    // @Commit이 없으면 기본적으로 Test에 Transactional 있으면 Rollback 시킨다.
     @BeforeEach
     fun before() {
         queryFactory = JPAQueryFactory(em)
@@ -251,14 +254,73 @@ class QuerydslBasicTest {
     }
 
     /**
+     * 회원과 팀을 조인하면서, 팀 이름이 teamA인 팀만 조인, 회원은 모두  조회
      * JPQL: SELECT m, t FROM MEMBER m LEFT JOIN m.team ON t.name = 'teamA'
      */
     @Test
-    fun joinOnFiltering() {
-        queryFactory
+    fun join_on_filtering() {
+        val result = queryFactory
             .select(member, team)
             .from(member)
             .leftJoin(member.team, team).on(team.name.eq("teamA"))
+//            .where(team.name.eq("teamA")) // where 절에서 조건거는 것과 똑같다.
             .fetch()
+
+        for (tuple in result) {
+            println("tuple = $tuple")
+        }
+    }
+
+    /**
+     * 연관관계가 없는 엔티티 외부 조인
+     * 회원의 이름이 팀 이름과 같은 대상 외부 조인
+     * JPQL: SELECT m, t FROM MEMBER m JOIN m.team ON m.username = t.name
+     */
+    @Test
+    fun join_on_no_relation() {
+        em.persist(Member.createMember("teamA", 40))
+        em.persist(Member.createMember("teamB", 40))
+        em.persist(Member.createMember("teamC", 40))
+
+        val result = queryFactory
+            .select(member, team)
+            .from(member)
+            .join(team).on(member.username.eq(team.name))
+            .fetch()
+
+        for (tuple in result) {
+            println("tuple = $tuple")
+        }
+    }
+
+    @PersistenceUnit
+    lateinit var emf: EntityManagerFactory
+
+    @Test
+    fun fetch_join_no() {
+        val findMember = queryFactory
+            .selectFrom(member)
+            .where(member.username.eq("member1"))
+            .fetchOne()
+
+        val loaded = emf.persistenceUnitUtil.isLoaded(findMember?.team)
+        assertThat(loaded).`as`("페치 조인 미적용").isFalse()
+    }
+
+    /**
+     * 페치 조인 적용
+     * JPQL: SELECT m from Member m INNER JOIN FETCH m.team where m.username = 'member1'
+     */
+    @Test
+    fun fetch_join_use() {
+        val findMember = queryFactory
+            .selectFrom(member)
+            .join(member.team, team).fetchJoin()
+            .where(member.username.eq("member1"))
+            .fetchOne()
+
+        println(findMember?.team)
+        val loaded = emf.persistenceUnitUtil.isLoaded(findMember?.team)
+        assertThat(loaded).`as`("페치 조인 적용").isTrue()
     }
 }
