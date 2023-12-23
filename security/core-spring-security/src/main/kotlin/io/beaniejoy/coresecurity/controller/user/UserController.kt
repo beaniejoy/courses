@@ -27,7 +27,7 @@ class UserController(
     @PostMapping("/users")
     fun createUser(accountDto: AccountDto): String {
         val account = Account.createAccount(
-            username = accountDto.username,
+            username = accountDto.username!!,
             password = passwordEncoder.encode(accountDto.password),
             email = accountDto.email!!,
             age = accountDto.age!!

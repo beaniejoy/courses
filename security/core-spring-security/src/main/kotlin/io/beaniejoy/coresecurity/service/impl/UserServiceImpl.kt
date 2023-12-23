@@ -30,7 +30,7 @@ class UserServiceImpl(
 
     override fun modifyUser(accountDto: AccountDto) {
         val account = Account.createAccount(
-            username = accountDto.username,
+            username = accountDto.username!!,
             password = passwordEncoder.encode(accountDto.password),
             email = accountDto.email!!,
             age = accountDto.age!!

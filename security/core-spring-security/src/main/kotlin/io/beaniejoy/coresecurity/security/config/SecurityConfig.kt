@@ -19,9 +19,9 @@ import org.springframework.security.access.hierarchicalroles.RoleHierarchy
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl
 import org.springframework.security.access.vote.AffirmativeBased
 import org.springframework.security.access.vote.RoleHierarchyVoter
-import org.springframework.security.access.vote.RoleVoter
 import org.springframework.security.authentication.AuthenticationDetailsSource
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer
 import org.springframework.security.crypto.factory.PasswordEncoderFactories
@@ -31,6 +31,7 @@ import org.springframework.security.web.access.intercept.FilterSecurityIntercept
 import javax.servlet.http.HttpServletRequest
 
 @Configuration
+@EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 @Order(1)
 class SecurityConfig {
     @Autowired
@@ -130,6 +131,8 @@ class SecurityConfig {
     }
 
     private fun getAccessDecisionVoters(): MutableList<AccessDecisionVoter<*>> {
+        // 리스트 순서에 따라 voter 심사를 진행하기에
+        // ipAddressVoter를 가장 먼저 진행시켜야 함
         return mutableListOf<AccessDecisionVoter<out Any>>().apply {
 //            add(RoleVoter())
             add(IpAddressVoter(securityResourceService))

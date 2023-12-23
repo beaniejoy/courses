@@ -33,7 +33,7 @@ class AjaxLoginProcessingFilter :
             throw IllegalArgumentException("Username & Password are not empty!!")
         }
 
-        val token = AjaxAuthenticationToken(accountDto.username, accountDto.password).apply {
+        val token = AjaxAuthenticationToken(accountDto.username!!, accountDto.password!!).apply {
             this.details = WebAuthenticationDetails(request)
         }
 

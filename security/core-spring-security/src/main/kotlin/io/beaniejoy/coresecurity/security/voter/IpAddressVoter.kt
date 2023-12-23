@@ -28,10 +28,13 @@ class IpAddressVoter(
         val remoteAddress = details.remoteAddress
 
         if (securityResourceService.getAccessIpList().contains(remoteAddress).not()) {
+            // ACCESS_DENIED가 아닌 Exception을 발생시켜야 한다.
+            // Affirmative에서 만약 다른 Voter에서 GRANTED가 하나라도 나오면 ip가 허용이 안되어도 심의 통과되기 때문
             throw AccessDeniedException("Invalid IpAddress")
         }
 
         // 통과되면 이후 본래의 인가 처리로 넘김(추가 심의 진행)
+        // Affirmative manager인 경우 Voter 중 하나라도 GRANTED면 심의 통과
         return ACCESS_ABSTAIN
 
     }

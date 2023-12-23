@@ -22,6 +22,8 @@ class UrlFilterInvocationSecurityMetadataSource(
             .toTypedArray()
     }
 
+    // 여기서 핵심은 FilterSecurityInterceptor의 인가 작업시
+    // List<ConfigAttribute> 내용이 null이면 권한 심사없이 바로 통과한다는 것
     override fun getAttributes(`object`: Any): MutableCollection<ConfigAttribute>? {
         val request = (`object` as FilterInvocation).request
 
