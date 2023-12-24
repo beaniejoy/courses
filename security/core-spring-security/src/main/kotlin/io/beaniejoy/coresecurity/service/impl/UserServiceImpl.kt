@@ -7,6 +7,7 @@ import io.beaniejoy.coresecurity.repository.RoleRepository
 import io.beaniejoy.coresecurity.repository.UserRepository
 import io.beaniejoy.coresecurity.service.UserService
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.security.access.annotation.Secured
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -58,5 +59,11 @@ class UserServiceImpl(
 
     override fun deleteUser(id: Long) {
         userRepository.deleteById(id)
+    }
+
+    @Secured("ROLE_MANAGER")
+    override fun order() {
+        // AOP security 인가 처리
+        println("order")
     }
 }

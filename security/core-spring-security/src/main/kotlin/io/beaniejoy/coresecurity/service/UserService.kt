@@ -13,4 +13,6 @@ interface UserService {
     fun getUser(id: Long): AccountDto
 
     fun deleteUser(id: Long)
+
+    fun order()
 }
