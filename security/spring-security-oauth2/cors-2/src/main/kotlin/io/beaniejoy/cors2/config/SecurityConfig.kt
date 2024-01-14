@@ -23,6 +23,7 @@ class SecurityConfig {
             .build()
     }
 
+    // CorsConfigurationSource 여기서 CORS 관련 설정들을 할 수 있다.
     @Bean
     fun corsConfigurationSource(): CorsConfigurationSource {
         // 아래의 정책과 클라이언트 요청 헤더 내용하고 맞지 않으면 브라우저에서 걸러내고
@@ -31,7 +32,7 @@ class SecurityConfig {
             this.addAllowedOrigin("*")  // *: 모든 origin domain에 대해 허용
             this.addAllowedMethod("*")
             this.addAllowedHeader("*")
-//            this.allowCredentials = true
+//            this.allowCredentials = true  // 이 부분도 알아보기
             this.maxAge = 3_600L // 이 부분은 어떤 것인지 아직 이해 못함
         }
 
