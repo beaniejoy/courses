@@ -32,3 +32,13 @@
 dev 모드로 실행  
 keycloak 로컬 admin 계정 > ID: admin / PW: beaniejoy
 keycloak user > PW: 1234
+
+<br>
+
+## OAuth 기본 이해하기
+
+```shell
+GET http://localhost:8080/realms/oauth2/protocol/openid-connect/auth?response_type=code&client_id=oauth2-client-app&scope=profile email&redirect_url=http://localhost:8081
+```
+keycloak에 access token 요청하기 전에 1단계 과정으로 임시코드 발급받는 api  
+(임시코드로 access token과 교환하게 된다.)
