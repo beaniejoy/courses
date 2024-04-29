@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-factorial-app
+  namespace: factorial
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: factorial-app
+  template:
+    metadata:
+      labels:
+        app: factorial-app
+    spec:
+      containers:
+        - name: factorial
+          image: hbleejoy/factorial-app:0.0.2
