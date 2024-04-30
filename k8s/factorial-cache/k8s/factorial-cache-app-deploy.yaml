@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: my-factorial-app
+  name: my-factorial-cache-app
   namespace: factorial
 spec:
   replicas: 2
@@ -12,31 +12,36 @@ spec:
       maxUnavailable: 0
   selector:
     matchLabels:
-      app: factorial-app
+      app: factorial-cache-app
   template:
     metadata:
       labels:
-        app: factorial-app
+        app: factorial-cache-app
     spec:
       terminationGracePeriodSeconds: 60 # default 30s
       containers:
         - name: factorial
-          image: hbleejoy/factorial-app:0.0.3
+          image: hbleejoy/factorial-cache-app:0.0.1
+          imagePullPolicy: Always
+          env:
+            - name: APP_LANGUAGE
+              valueFrom:
+                configMapKeyRef:
+                  name: factorial-config
+                  key: language
+            - name: API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: factorial-secret
+                  key: api-key
           lifecycle:
             preStop:
               exec:
                 # terminationGracePeriodSeconds 시간 안에서 수행되는 것임
                 command: ["/bin/sh", "-c", "sleep 10"]
-          startupProbe:
-            httpGet:
-              path: /probe/startup
-              port: 8080
-            initialDelaySeconds: 15  # 평균적인 애플리케이션 실행완료시간
-            periodSeconds: 1
-            failureThreshold: 10
           readinessProbe:
             httpGet:
-              path: /probe/ready
+              path: /probe/healthcheck
               port: 8080
             initialDelaySeconds: 15  # startupProbe 설정되어있으면 크게 의미가 없다.
             periodSeconds: 1
@@ -44,7 +49,7 @@ spec:
             failureThreshold: 3 # readiness는 좀더 민감하게 거는 것이 좋다.
           livenessProbe:
             httpGet:
-              path: /probe/live
+              path: /probe/healthcheck
               port: 8080
             initialDelaySeconds: 15  # startupProbe 설정되어있으면 크게 의미가 없다.
             periodSeconds: 1

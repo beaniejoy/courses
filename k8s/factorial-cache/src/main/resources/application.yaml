@@ -1,0 +1,10 @@
+server:
+  shutdown: graceful
+
+spring:
+  application:
+    name: factorial-cache
+
+factorial:
+  language: ${APP_LANGUAGE:en}
+  api-key: ${API_KEY:abcd-default}
