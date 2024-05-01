@@ -5,14 +5,15 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import java.math.BigDecimal
 
 @RestController
 class FactorialCacheController(
     @Value("\${factorial.language}")
     private val language: String,
     @Value("\${factorial.api-key}")
-    private val apiKey: String
+    private val apiKey: String,
+    private val cacheService: FactorialCacheService,
+    private val calculateService: FactorialCalculateService
 ) {
 
     @GetMapping("/factorial/{n}")
@@ -26,7 +27,10 @@ class FactorialCacheController(
             }
         }
 
-        val result = BigDecimal.ONE
+        val result = cacheService.cachedFactorial(n)
+            ?: calculateService.getCalculatedResult(n).also {
+                cacheService.cacheFactorial(n, it)
+            }
 
         return when (language) {
             "ko" -> "$n 팩토리얼은 $result 입니다."

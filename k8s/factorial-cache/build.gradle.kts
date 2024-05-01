@@ -44,7 +44,7 @@ jib {
 	}
 	to {
 		image = "hbleejoy/factorial-cache-app" // push할 docker registry repository
-		tags = setOf("latest", "0.0.1")
+		tags = setOf("latest", "0.0.2")
 	}
 	container {
 		creationTime = "USE_CURRENT_TIMESTAMP"

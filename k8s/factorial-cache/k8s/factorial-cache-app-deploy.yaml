@@ -21,7 +21,7 @@ spec:
       terminationGracePeriodSeconds: 60 # default 30s
       containers:
         - name: factorial
-          image: hbleejoy/factorial-cache-app:0.0.1
+          image: hbleejoy/factorial-cache-app:0.0.2
           imagePullPolicy: Always # prod 환경에서는 없는 것이 좋다. (태그 버전은 고유의 값으로)
           env:
             - name: APP_LANGUAGE
