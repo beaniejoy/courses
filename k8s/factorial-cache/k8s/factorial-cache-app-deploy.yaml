@@ -19,10 +19,23 @@ spec:
         app: factorial-cache-app
     spec:
       terminationGracePeriodSeconds: 60 # default 30s
+      volumes:
+        # 임시 볼륨
+        - name: cache-volume
+          emptyDir:
+            medium: Memory  # 메모리 상에서 임시 저장
+        - name: log-volume
+          persistentVolumeClaim:
+            claimName: cache-log-storage-claim
       containers:
         - name: factorial
-          image: hbleejoy/factorial-cache-app:0.0.2
+          image: hbleejoy/factorial-cache-app:0.0.3
           imagePullPolicy: Always # prod 환경에서는 없는 것이 좋다. (태그 버전은 고유의 값으로)
+          volumeMounts:
+            - mountPath: /factorial/logs
+              name: log-volume
+            - mountPath: /factorial/cache
+              name: cache-volume
           env:
             - name: APP_LANGUAGE
               valueFrom:

@@ -26,3 +26,17 @@ kubectl -n factorial rollout restart deployments my-factorial-cache-app
 ```
 위와 같이 콘솔에서 configmap 내용 변경을 할 수 있다.
 configmap 내용만 변경했다고 deployment에 반영되는 것이 아니라서 restart 해줘야 함 (rollout restart 해줌)
+
+<br>
+
+## Storage test
+
+- `/factorial/logs` (영구 볼륨 테스트 - dynamic provisioning)
+- `/factorial/cache` (임시 볼륨 테스트)
+
+```shell
+kubectl -n factorial exec [POD_NAME] -- /bin/sh -c "kill 1" 
+```
+kube pod 메인 프로세스가 1번 pid를 가진다.
+이렇게 해서 container 프로세스를 다운 시켜 container만 재시작하도록 할 수 있음
+container restart 상황에서 임시 볼륨은 그대로 유지되어야 한다. (pod 단위이기에)

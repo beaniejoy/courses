@@ -1,4 +1,4 @@
-package com.example.factorialcache
+package com.example.factorialcache.service
 
 import org.springframework.http.HttpStatusCode
 import org.springframework.stereotype.Service

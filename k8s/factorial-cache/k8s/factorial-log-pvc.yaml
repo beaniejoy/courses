@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cache-log-storage-claim
+  namespace: factorial
+spec:
+  storageClassName: local-storage
+  accessModes:
+    - ReadWriteOnce # 하나의 노드에서만 적용 가능
+  resources:
+    requests:
+      storage: 100Mi
