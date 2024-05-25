@@ -1,10 +1,11 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("org.springframework.boot") version "3.2.5"
-    id("io.spring.dependency-management") version "1.1.4"
-    kotlin("jvm") version "1.9.23"
-    kotlin("plugin.spring") version "1.9.23"
+    id("org.springframework.boot") version "3.3.0"
+    id("io.spring.dependency-management") version "1.1.5"
+    kotlin("jvm") version "1.9.24"
+    kotlin("plugin.spring") version "1.9.24"
+
     id("com.google.cloud.tools.jib") version "3.4.2"
 }
 
@@ -20,14 +21,15 @@ repositories {
 }
 
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-
+    implementation("org.springframework.boot:spring-boot-starter-batch")
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
-
-    implementation("io.github.microutils:kotlin-logging:3.0.4")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
+
+    runtimeOnly("com.h2database:h2")
+
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.batch:spring-batch-test")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 tasks.withType<KotlinCompile> {
@@ -46,10 +48,11 @@ jib {
         image = "openjdk:17"
     }
     to {
-        image = "hbleejoy/factorial-app" // push할 docker registry repository
-        tags = setOf("latest", "0.0.7")
+        image = "hbleejoy/factorial-batch"
+        tags = setOf("latest", "0.0.2")
     }
     container {
+        args = listOf("--job.name=factorial-job")
         creationTime = "USE_CURRENT_TIMESTAMP"
     }
 }

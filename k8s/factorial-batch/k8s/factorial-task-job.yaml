@@ -1,0 +1,17 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: factorial-batch
+  namespace: factorial
+spec:
+  schedule: "*/1 * * * *"
+  jobTemplate:
+    spec:
+      parallelism: 3  # 동시에 3개의 pod가 떠서 병렬 작업
+      completions: 3  # 실행 종료되어야 하는 pod 개수
+      template:
+        spec:
+          containers:
+            - name: factorial-worker
+              image: hbleejoy/factorial-batch:0.0.2
+          restartPolicy: Never

@@ -23,15 +23,15 @@ class FactorialService(
         return BigDecimal(n).multiply(calculate(n - 1))
     }
 
-    @Scheduled(fixedDelay = 1000L)
-    fun calculateTask() {
-        if (redisTemplate.hasKey("factorial:task-queue")) {
-            redisTemplate.opsForSet().pop("factorial:task-queue")?.also {
-                val result = calculate(it.toInt())
-
-                redisTemplate.opsForHash<String, String>()
-                    .put("factorial:result-set", it, result.toPlainString())
-            }
-        }
-    }
+//    @Scheduled(fixedDelay = 1000L)
+//    fun calculateTask() {
+//        if (redisTemplate.hasKey("factorial:task-queue")) {
+//            redisTemplate.opsForSet().pop("factorial:task-queue")?.also {
+//                val result = calculate(it.toInt())
+//
+//                redisTemplate.opsForHash<String, String>()
+//                    .put("factorial:result-set", it, result.toPlainString())
+//            }
+//        }
+//    }
 }

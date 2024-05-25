@@ -21,7 +21,7 @@ spec:
       terminationGracePeriodSeconds: 60 # default 30s
       containers:
         - name: factorial
-          image: hbleejoy/factorial-app:0.0.6
+          image: hbleejoy/factorial-app:0.0.7
           imagePullPolicy: Always
           resources:
             requests:
