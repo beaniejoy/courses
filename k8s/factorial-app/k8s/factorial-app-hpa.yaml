@@ -1,0 +1,24 @@
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: factorial-hpa
+  namespace: factorial
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: my-factorial-app
+  minReplicas: 2
+  maxReplicas: 5
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 50 # deployment에서 requests.cpu 1000m에서 50% 의미
+  behavior:
+    scaleUp: # scale out, scale up 모두 포함하는 의미 (해외에서)
+      stabilizationWindowSeconds: 30  # hpa scale 조정 이후 다음 scale 조정까지 기다리는 시간 설정
+    scaleDown:
+      stabilizationWindowSeconds: 30

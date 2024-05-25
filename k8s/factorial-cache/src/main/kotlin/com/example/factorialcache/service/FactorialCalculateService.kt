@@ -15,6 +15,8 @@ class FactorialCalculateService {
             .retrieve()
             .onStatus(HttpStatusCode::isError) { _, response ->
                 throw RuntimeException("invalid server response ${response.statusText}")
-            }.body(BigDecimal::class.java)!!
+            }
+            .body(String::class.java)
+            .let { BigDecimal(it) }
     }
 }

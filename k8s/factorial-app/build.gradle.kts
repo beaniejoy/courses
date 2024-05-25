@@ -23,6 +23,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 
+    implementation("org.springframework.boot:spring-boot-starter-data-redis")
+
     implementation("io.github.microutils:kotlin-logging:3.0.4")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
@@ -46,7 +48,7 @@ jib {
     }
     to {
         image = "hbleejoy/factorial-app" // push할 docker registry repository
-        tags = setOf("latest", "0.0.3")
+        tags = setOf("latest", "0.0.6")
     }
     container {
         creationTime = "USE_CURRENT_TIMESTAMP"

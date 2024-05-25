@@ -2,8 +2,12 @@ server:
   shutdown: graceful
 
 spring:
-  application:
-    name: factorial-cache
+  data:
+    redis:
+      # 같은 namespace에 있을 때는 name으로만 접근 가능
+      # 다른 namespace 같은 경우 아래 처럼 풀네임 적어줘야 한다.
+      host: redis-service.default.svc.cluster.local
+      port: 6379
 
 factorial:
   language: ${APP_LANGUAGE:en}

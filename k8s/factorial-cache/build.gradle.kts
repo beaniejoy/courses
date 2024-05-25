@@ -24,6 +24,8 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
+
+	implementation("org.springframework.boot:spring-boot-starter-data-redis")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 
@@ -44,7 +46,7 @@ jib {
 	}
 	to {
 		image = "hbleejoy/factorial-cache-app" // push할 docker registry repository
-		tags = setOf("latest", "0.0.3")
+		tags = setOf("latest", "0.0.6")
 	}
 	container {
 		creationTime = "USE_CURRENT_TIMESTAMP"

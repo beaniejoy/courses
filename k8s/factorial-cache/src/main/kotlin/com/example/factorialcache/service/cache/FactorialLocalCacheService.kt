@@ -1,4 +1,4 @@
-package com.example.factorialcache.service
+package com.example.factorialcache.service.cache
 
 import com.example.factorialcache.util.FileLogger
 import com.fasterxml.jackson.core.type.TypeReference
@@ -12,14 +12,14 @@ import java.math.BigDecimal
 import java.util.concurrent.ConcurrentHashMap
 
 @Service
-class FactorialCacheService(
+class FactorialLocalCacheService(
     private val fileLogger: FileLogger,
     private val objectMapper: ObjectMapper
-) {
+) : FactorialCacheService {
     private val factorialMap: MutableMap<Int, BigDecimal> = ConcurrentHashMap()
 
     companion object {
-        const val TEMP_CACHE_FILE =  "/factorial/cache/cache.json"
+        const val TEMP_CACHE_FILE = "/factorial/cache/cache.json"
     }
 
     @PostConstruct
@@ -40,7 +40,7 @@ class FactorialCacheService(
         }
     }
 
-    fun cachedFactorial(n: Int): BigDecimal? {
+    override fun cachedFactorial(n: Int): BigDecimal? {
         val result = factorialMap[n]
 
         fileLogger.log(result?.let { "Cache Hit ${n}!=${result}" } ?: "Cache missed")
@@ -48,7 +48,7 @@ class FactorialCacheService(
         return result
     }
 
-    fun cacheFactorial(n: Int, result: BigDecimal) {
+    override fun cacheFactorial(n: Int, result: BigDecimal) {
         fileLogger.log("Cache factorial ${n}!=${result}")
         factorialMap[n] = result
     }

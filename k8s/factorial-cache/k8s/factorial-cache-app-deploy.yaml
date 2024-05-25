@@ -29,7 +29,7 @@ spec:
             claimName: cache-log-storage-claim
       containers:
         - name: factorial
-          image: hbleejoy/factorial-cache-app:0.0.3
+          image: hbleejoy/factorial-cache-app:0.0.6
           imagePullPolicy: Always # prod 환경에서는 없는 것이 좋다. (태그 버전은 고유의 값으로)
           volumeMounts:
             - mountPath: /factorial/logs

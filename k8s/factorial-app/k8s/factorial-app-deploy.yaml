@@ -21,7 +21,15 @@ spec:
       terminationGracePeriodSeconds: 60 # default 30s
       containers:
         - name: factorial
-          image: hbleejoy/factorial-app:0.0.3
+          image: hbleejoy/factorial-app:0.0.6
+          imagePullPolicy: Always
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "1000m" # probe에서 아예 안돌 수 있기 때문에 넉넉하게
+            limits:
+              memory: "1Gi"
+              cpu: "1500m"
           lifecycle:
             preStop:
               exec:
@@ -31,21 +39,21 @@ spec:
             httpGet:
               path: /probe/startup
               port: 8080
-            initialDelaySeconds: 15  # 평균적인 애플리케이션 실행완료시간
+            initialDelaySeconds: 45  # 평균적인 애플리케이션 실행완료시간
             periodSeconds: 1
             failureThreshold: 10
           readinessProbe:
             httpGet:
               path: /probe/ready
               port: 8080
-            initialDelaySeconds: 15  # startupProbe 설정되어있으면 크게 의미가 없다.
+            initialDelaySeconds: 45  # startupProbe 설정되어있으면 크게 의미가 없다.
             periodSeconds: 1
-            successThreshold: 2
-            failureThreshold: 3 # readiness는 좀더 민감하게 거는 것이 좋다.
+            successThreshold: 1
+            failureThreshold: 2 # readiness는 좀더 민감하게 거는 것이 좋다.
           livenessProbe:
             httpGet:
               path: /probe/live
               port: 8080
-            initialDelaySeconds: 15  # startupProbe 설정되어있으면 크게 의미가 없다.
+            initialDelaySeconds: 45  # startupProbe 설정되어있으면 크게 의미가 없다.
             periodSeconds: 1
-            failureThreshold: 7  # readiness에 비해 덜 민감하게 잡는 것이 좋다. (재시작 시켜버리기 때문)
+            failureThreshold: 10  # readiness에 비해 덜 민감하게 잡는 것이 좋다. (재시작 시켜버리기 때문)

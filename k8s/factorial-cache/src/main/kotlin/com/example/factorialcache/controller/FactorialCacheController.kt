@@ -1,8 +1,10 @@
 package com.example.factorialcache.controller
 
 import com.example.factorialcache.exception.IncorrectApiKeyException
-import com.example.factorialcache.service.FactorialCacheService
+import com.example.factorialcache.service.cache.FactorialCacheService
 import com.example.factorialcache.service.FactorialCalculateService
+import com.example.factorialcache.service.FactorialTaskService
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -15,8 +17,10 @@ class FactorialCacheController(
     private val language: String,
     @Value("\${factorial.api-key}")
     private val apiKey: String,
+    @Qualifier("factorialRedisCacheService")
     private val cacheService: FactorialCacheService,
-    private val calculateService: FactorialCalculateService
+    private val calculateService: FactorialCalculateService,
+    private val taskService: FactorialTaskService
 ) {
 
     @GetMapping("/factorial/{n}")
@@ -31,8 +35,15 @@ class FactorialCacheController(
         }
 
         val result = cacheService.cachedFactorial(n)
-            ?: calculateService.getCalculatedResult(n).also {
+            ?: if (n <= 1000) calculateService.getCalculatedResult(n).also {
                 cacheService.cacheFactorial(n, it)
+            } else {
+                val size = taskService.saveCalculationTask(n)
+                return when (language) {
+                    "ko" -> "${n}! 계산이 예약되었습니다. 남은 작업 : $size "
+                    "en" -> "${n}! has been scheduled. Remain task: $size"
+                    else -> "Unsupported language: $language"
+                }
             }
 
         return when (language) {
