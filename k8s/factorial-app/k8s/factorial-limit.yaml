@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: factorial-limitrange
+  namespace: factorial
+spec:
+  limits:
+    - max:
+        memory: 4Gi
+      min:
+        memory: 2Gi # 만약 deploy에 설정한 limit 설정보다 크면 deploy 자체가 생성이 안됨
+      type: Container

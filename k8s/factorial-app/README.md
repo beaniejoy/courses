@@ -29,3 +29,39 @@ kubectl -n factorial edit ingress factorial-ingress
 ```shell
 kubectl -n factorial scale deployment my-factorial-app --replicas=4
 ```
+
+<br>
+
+## Resource 제한
+
+```shell
+kubectl -n factorial describe resourcequota factorial-quota
+```
+
+<br>
+
+## Helm 
+
+```shell
+helm create factorial-chart
+```
+해당 경로에 factorial-chart 디렉토리안에 helm chart 관련 파일들 생성됨
+
+```shell
+helm -n factorial install my-test-app factorial-chart/
+
+helm -n factorial uninstall my-test-app
+```
+
+스펙 변경 후
+```shell
+helm -n factorial upgrade my-test-app factorial-chart --values factorial-chart/values.yaml
+```
+Revision history 리스트 확인
+```shell
+helm -n factorial history my-test-app
+```
+롤백
+```shell
+helm -n factorial rollback my-test-app [REVISION_NUMBER]
+```
