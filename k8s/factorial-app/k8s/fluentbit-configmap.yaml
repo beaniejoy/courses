@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fluentbit-config
+  namespace: factorial
+data:
+  fluent-bit.conf:  |
+    [SERVICE]
+        Flush         1
+        Log_Level     info
+    
+    [INPUT]
+        Name          tail
+        Path          /var/log/app/factorial.log
+    
+    [OUTPUT]
+        Name          opensearch
+        Match         *
+        Host          opensearch-cluster-master.opensearch.svc.cluster.local
+        Port          9200
+        Logstash_Format On
+        Logstash_Prefix factorial-app-logs
+        Suppress_Type_Name  On
+        tls           On
+        tls.verify    Off
+        http_User     admin
+        http_Passwd   Beaniejoy1!

@@ -14,3 +14,7 @@ spring:
 
   lifecycle:
     timeout-per-shutdown-phase: 50s
+
+logging:
+  file:
+    name: /var/log/app/factorial.log

@@ -65,3 +65,40 @@ helm -n factorial history my-test-app
 ```shell
 helm -n factorial rollback my-test-app [REVISION_NUMBER]
 ```
+
+<br>
+
+## opensearch 
+
+elasticsearch에서 fork되어 나온 오픈소스 (로그 저장소)
+
+```shell
+helm repo add opensearch https://opensearch-project.github.io/helm-charts/
+```
+
+elasticsearch 같은 로그 저장소 설치
+```shell
+kubectl create namespace opensearch
+helm -n opensearch install --values=opensearch/values.yaml opensearch opensearch/opensearch
+```
+(OPENSEARCH_INITIAL_ADMIN_PASSWORD 이슈로 따로 지정한 values.yaml로 install)
+
+kibana 같은 로그 대시보드 설치
+```shell
+helm -n opensearch install dashboard opensearch/opensearch-dashboards
+```
+
+대시보드 port forwarding 
+```shell
+kubectl -n opensearch port-forward dashboard-opensearch-dashboards-65b6c8749d-4dqcx 56
+01 
+```
+
+- fluent-bit
+
+```
+Logstash_Format On
+Logstash_Prefix factorial-app-logs
+```
+prefix 뒤에 날짜 형식이 붙어서 저장
+이렇게 되면 훗날 과거 로그 내역 삭제하기가 간편해짐

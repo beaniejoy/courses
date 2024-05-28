@@ -19,10 +19,28 @@ spec:
         app: factorial-app
     spec:
       terminationGracePeriodSeconds: 60 # default 30s
+      volumes:
+        - name: log-volume
+          emptyDir: {}
+        - name: config-volume
+          configMap:
+            name: fluentbit-config
       containers:
+        - name: fluent-bit
+          image: fluent/fluent-bit:3.0.5
+          volumeMounts:
+            - mountPath: /var/log/app
+              name: log-volume
+            - mountPath: /fluent-bit/etc/fluent-bit.conf
+              # conf 파일만 대체될 수 있도록 설정(mountPath만 하는 경우 해당 디렉토리에 전부 overwrite 될 수 있다.
+              subPath: fluent-bit.conf
+              name: config-volume
         - name: factorial
-          image: hbleejoy/factorial-app:0.0.7
+          image: hbleejoy/factorial-app:0.0.8
           imagePullPolicy: Always
+          volumeMounts:
+            - mountPath: /var/log/app
+              name: log-volume
           resources:
             requests:
               memory: "512Mi"
