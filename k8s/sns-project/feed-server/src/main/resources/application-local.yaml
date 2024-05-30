@@ -1,0 +1,9 @@
+server:
+  shutdown: immediate
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/sns
+    username: sns-server
+    password: password!
