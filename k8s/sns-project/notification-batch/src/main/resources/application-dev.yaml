@@ -1,0 +1,20 @@
+spring:
+  batch:
+    jdbc:
+      initialize-schema: always
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/sns
+    username: ${MYSQL_USER}
+    password: ${MYSQL_PASSWORD}
+  mail:
+    host: ${SMTP_HOST}
+    port: ${SMTP_PORT}
+    username: ${SMTP_USER}
+    password: ${SMTP_PASSWORD}
+    protocol: smtp
+    properties:
+      mail:
+        smtp:
+          auth: ${SMTP_AUTH}
+          starttls.enable: ${SMTP_TLS}

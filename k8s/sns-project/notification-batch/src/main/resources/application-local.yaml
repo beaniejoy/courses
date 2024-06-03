@@ -1,0 +1,20 @@
+spring:
+  batch:
+    jdbc:
+      initialize-schema: always
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url:
+    username:
+    password:
+  mail:
+    host:
+    port:
+    username:
+    password:
+    protocol: smtp
+    properties:
+      mail:
+        smtp:
+          auth:
+          starttls.enable:
