@@ -7,7 +7,7 @@ data class UserInfo(
 ) {
     companion object {
         fun of(user: User): UserInfo = UserInfo(
-            userId = user.id,
+            userId = user.userId,
             userName = user.username,
             email = user.email
         )

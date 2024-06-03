@@ -61,7 +61,7 @@ jib {
 
 	to {
 		image = "${project.properties["feedEcr"]}"
-		tags = setOf("0.0.2-fix")
+		tags = setOf("0.0.3")
 	}
 
 	container {

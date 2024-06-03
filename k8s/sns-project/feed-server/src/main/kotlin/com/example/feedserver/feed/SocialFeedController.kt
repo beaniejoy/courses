@@ -9,8 +9,13 @@ class SocialFeedController(
     private val feedService: SocialFeedService
 ) {
     @GetMapping
-    fun list(): List<SocialFeed> {
-        return feedService.getAllFeeds()
+    fun getAllFeeds(): List<FeedInfo> {
+        val allFeeds = feedService.getAllFeeds()
+
+        return allFeeds.map {
+            val user = feedService.getUserInfo(it.uploaderId)
+            FeedInfo.of(it, user.userName)
+        }
     }
 
     @GetMapping("/user/{userId}")

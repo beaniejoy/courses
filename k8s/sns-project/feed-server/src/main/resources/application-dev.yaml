@@ -1,3 +1,6 @@
+sns:
+  user-server: ${USER_SERVICE}
+
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
