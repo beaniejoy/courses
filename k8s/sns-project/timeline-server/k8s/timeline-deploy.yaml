@@ -1,47 +1,48 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: user-server
+  name: timeline-server
   namespace: sns
 spec:
   replicas: 2
   strategy:
     type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
   selector:
     matchLabels:
-      app: user-server
+      app: timeline-server
   template:
     metadata:
       labels:
-        app: user-server
+        app: timeline-server
     spec:
       containers:
-        - name: user-container
-          image: "[ECR]/user-server:0.0.4"
+        - name: timeline
+          image: "[ECR]/timeline-server:0.0.1"
+          imagePullPolicy: Always
           env:
             - name: SPRING_PROFILES_ACTIVE
               value: dev
           envFrom:
             - configMapRef:
-                name: mysql-config
-            - secretRef:
-                name: mysql-secret
-            - configMapRef:
                 name: kafka-config
+            - configMapRef:
+                name: redis-config
             - secretRef:
                 name: kafka-secret
           resources:
-            # 처음 띄울 때는 낮춰서
             requests:
               memory: "512Mi"
-              cpu: "250m"
+              cpu: "500m"
             limits:
               memory: "1Gi"
               cpu: "1000m"
           lifecycle:
             preStop:
               exec:
-                command: [ "/bin/sh", "-c", "sleep 10" ]
+                command: ["/bin/sh","-c","sleep 10"]
           readinessProbe:
             httpGet:
               path: /healthcheck/ready

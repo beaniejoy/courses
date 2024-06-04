@@ -1,8 +1,12 @@
 package com.example.feedserver.feed
 
+import com.fasterxml.jackson.core.JsonProcessingException
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatusCode
+import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.client.RestClient
@@ -12,8 +16,11 @@ class SocialFeedService(
     private val feedRepository: SocialFeedRepository,
     @Value("\${sns.user-server}")
     private val userServerUrl: String,
-    private val restClient: RestClient = RestClient.create()
+    private val kafkaTemplate: KafkaTemplate<String, String>,
+    private val objectMapper: ObjectMapper
 ) {
+    private val restClient: RestClient = RestClient.create()
+
     fun getAllFeeds(): List<SocialFeed> {
         return feedRepository.findAll()
     }
@@ -32,7 +39,17 @@ class SocialFeedService(
 
     @Transactional
     fun createFeed(feed: FeedRequest): SocialFeed {
-        return feedRepository.save(feed.toEntity())
+        val savedFeed = feedRepository.save(feed.toEntity())
+        val uploader = getUserInfo(savedFeed.uploaderId)
+        val feedInfo = FeedInfo.of(savedFeed, uploader.userName)
+
+        try {
+            kafkaTemplate.send("feed.created", objectMapper.writeValueAsString(feedInfo))
+        } catch (e: JsonProcessingException) {
+            throw RuntimeException(e)
+        }
+
+        return savedFeed
     }
 
     fun getUserInfo(userId: Int): UserInfo {

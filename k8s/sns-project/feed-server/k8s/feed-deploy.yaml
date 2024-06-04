@@ -28,6 +28,10 @@ spec:
                 name: mysql-config
             - secretRef:
                 name: mysql-secret
+            - configMapRef:
+                name: kafka-config
+            - secretRef:
+                name: kafka-secret
           resources:
             # 처음 띄울 때는 낮춰서
             requests:
